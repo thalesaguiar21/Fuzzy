@@ -23,6 +23,12 @@ class TestsFCM(unittest.TestCase):
         self.assertRaises(ValueError, fcm.FCM, 3, -2)
         self.assertRaises(ValueError, fcm.FCM, 3, -1)
         self.assertRaises(ValueError, fcm.FCM, 3, 0)
+        self.assertRaises(ValueError, fcm.FCM, 3, 0.999)
+
+    def test_ncluster_out(self):
+        self.assertRaises(ValueError, fcm.FCM, -1, 2)
+        self.assertRaises(ValueError, fcm.FCM, 0, 2)
+        self.assertRaises(ValueError, fcm.FCM, 0.1, 2)
 
     def test_fuzzyness_in(self):
         self.assertNotRaise(fcm.FCM, 3, 1)
@@ -38,11 +44,6 @@ class TestsFCM(unittest.TestCase):
             func(*args)
         except:
             self.fail()
-
-    def test_ncluster_out(self):
-        self.assertRaises(ValueError, fcm.FCM, -1, 2)
-        self.assertRaises(ValueError, fcm.FCM, 0, 2)
-        self.assertRaises(ValueError, fcm.FCM, 0.1, 2)
 
     def test_partitions_dim(self):
         parts = self.mfcm.partitions
