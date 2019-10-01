@@ -16,3 +16,6 @@ class TestsFCM(unittest.TestCase):
         parts, _ = self.mfcm.fit(self.data, 0.2)
         self.assertEqual(parts.shape, (500, 3))
 
+    def test_centroids_dim(self):
+        _, centroids = self.mfcm.fit(self.data, 0.2)
+        self.assertEqual(centroids.shape, (3, 2))
