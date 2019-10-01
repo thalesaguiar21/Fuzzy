@@ -83,6 +83,13 @@ class FGMM:
     def fit(self, data, fuzzyness=2, tolerance=0.2):
         fcm = FCM(self.ncomponents, fuzzyness)
         partitions, _ = fcm.fit(data, tolerance)
+        mixture_weights = self._compute_mixture_weights(partitions)
+        breakpoint()
+
+    def _compute_mixture_weights(self, partitions):
+        cluster_relevance = np.sum(partitions, axis=0)
+        total_weight = np.sum(partitions)
+        return cluster_relevance / total_weight
 
     def predict(self, samples):
         pass
