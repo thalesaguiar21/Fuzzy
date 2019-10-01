@@ -14,6 +14,8 @@ class FCM:
     def validate_params(self, nclusters, fuzzyness):
         if fuzzyness <= 0:
             raise ValueError('Cluster fuzzyness must be at least one')
+        if nclusters < 1:
+            raise ValueError('There must be at least one cluster')
 
     def fit(self, data, tolerance):
         self.npoints = data.shape[0]

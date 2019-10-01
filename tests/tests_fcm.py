@@ -19,14 +19,19 @@ class TestsFCM(unittest.TestCase):
     def setUp(self):
         pass
 
-    def expect_fuzzyness(self, fuzzyness, error):
-        with self.assertRaises(error):
-            fcm.FCM(3, fuzzyness)
-
     def test_cluster_fuzzyness(self):
-        self.expect_fuzzyness(-2, ValueError)
-        self.expect_fuzzyness(-1, ValueError)
-        self.expect_fuzzyness(0, ValueError)
+        self.expect_fcm(3, -2, ValueError)
+        self.expect_fcm(3, -1, ValueError)
+        self.expect_fcm(3, 0, ValueError)
+
+    def test_ncluster(self):
+        self.expect_fcm(-1, 2, ValueError)
+        self.expect_fcm(0, 2, ValueError)
+        self.expect_fcm(0.1, 2, ValueError)
+
+    def expect_fcm(self, ncluster, fuzzyness, error):
+        with self.assertRaises(error):
+            fcm.FCM(ncluster, fuzzyness)
 
     def test_partitions_dim(self):
         parts = self.mfcm.partitions
