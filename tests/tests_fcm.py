@@ -2,13 +2,16 @@ from .context import fuzzy
 from fuzzy.models.clustering import FCM
 import unittest
 import numpy as np
+import os
 
+DIRNAME = os.path.dirname(__file__)
+FILEPATH = os.path.join(DIRNAME, 'dataset_blob.txt')
 
 class TestsFCM(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestsFCM, self).__init__(*args, **kwargs)
-        dataset = np.loadtxt('/home/thales/DEV/Fuzzy/tests/dataset_blob.txt')
+        dataset = np.loadtxt(FILEPATH)
         self.Xtrain = dataset[:350, :-1]
         self.Xtest = dataset[350:, :-1]
         self.Ytrain = dataset[:350, -1]
