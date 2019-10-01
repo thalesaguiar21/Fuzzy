@@ -30,7 +30,8 @@ class TestsFCM(unittest.TestCase):
         self.assertNotRaise(fcm.FCM, 3, 2)
 
     def test_ncluster_in(self):
-       pass 
+        self.assertNotRaise(fcm.FCM, 1, 2)
+        self.assertNotRaise(fcm.FCM, 2, 1)
 
     def assertNotRaise(self, func, *args):
         try:
