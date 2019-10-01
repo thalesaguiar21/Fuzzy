@@ -1,5 +1,4 @@
 import numpy as np
-import sklearn.datasets as skdata
 
 
 class FCM:
@@ -90,10 +89,4 @@ class FGMM:
 
     def predict_fuzzy(self, samples):
         pass
-
-
-if __name__ == '__main__':
-    fgmm = FGMM(4)
-    data, labels = skdata.make_blobs(500, 2, 3)
-    fgmm.fit(data, fuzzyness=2, tolerance=0.2)
 
