@@ -4,11 +4,16 @@ import sklearn.datasets as skdata
 
 class FCM:
     def __init__(self, nclusters, fuzzyness):
+        self.validate_params(nclusters, fuzzyness)
         self.partitions = []
         self.m = fuzzyness
         self.nclusters = nclusters
         self.npoints = 0
         self.centroids = []
+
+    def validate_params(self, nclusters, fuzzyness):
+        if fuzzyness <= 0:
+            raise ValueError('Cluster fuzzyness must be at least one')
 
     def fit(self, data, tolerance):
         self.npoints = data.shape[0]
