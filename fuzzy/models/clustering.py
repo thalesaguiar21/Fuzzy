@@ -73,3 +73,27 @@ class FCM:
         mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-10)))
         return mem_degree
 
+
+
+class FGMM:
+    """ Distance based Fuzzy Gaussian Mixture Model """
+
+    def __init__(self, ncomponents):
+        self.ncomponents = ncomponents
+
+    def fit(self, data, fuzzyness=2, tolerance=0.2):
+        fcm = FCM(self.ncomponents, fuzzyness)
+        partitions, _ = fcm.fit(data, tolerance)
+
+    def predict(self, samples):
+        pass
+
+    def predict_fuzzy(self, samples):
+        pass
+
+
+if __name__ == '__main__':
+    fgmm = FGMM(4)
+    data, labels = skdata.make_blobs(500, 2, 3)
+    fgmm.fit(data, fuzzyness=2, tolerance=0.2)
+
