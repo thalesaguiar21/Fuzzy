@@ -57,6 +57,14 @@ class TestsFCM(unittest.TestCase):
         preds = self.mfcm.predict_fuzz(np.array([[1, 2], [2, 3]]))
         self.assertEqual(preds.shape, (2, 3))
 
+    def test_predfuzz_none(self):
+        preds = self.mfcm.predict_fuzz(None)
+        self.assertEqual(preds, [])
+
+    def test_predfuzz_empty(self):
+        preds = self.mfcm.predict_fuzz([])
+        self.assertEqual(preds, [])
+
     def test_predfuzz_testset(self):
         try:
             self.mfcm.predict_fuzz(self.Xtest)

@@ -58,6 +58,8 @@ class FCM:
 
     def predict_fuzz(self, samples):
         """ Compute the membership degree of a sample to every cluster """
+        if samples is None or len(samples) == 0:
+            return []
         mem_degrees = np.zeros((samples.shape[0], self.nclusters))
         for i in range(samples.shape[0]):
             for j in range(self.nclusters):
