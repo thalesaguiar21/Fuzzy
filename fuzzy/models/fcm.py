@@ -6,7 +6,7 @@ class FCM:
     def __init__(self, nclusters, fuzzyness):
         self.partitions = []
         self.m = fuzzyness
-        self.nclusters = nclusters 
+        self.nclusters = nclusters
         self.npoints = 0
         self.centroids = []
 
@@ -62,11 +62,4 @@ class FCM:
         norm_dists = num / np.array(dists)
         mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-10)))
         return mem_degree
-
-
-points, labels = skdata.make_blobs(500, 2, 3)
-ptrain, ptest = points[:490, :], points[491:, :]
-fcm = FCM(3, 2)
-parts, centers = fcm.fit(ptrain, 0.01)
-print(f"PRED: {fcm.predict(ptest)}\nREAL: {labels[491:]}")
 
