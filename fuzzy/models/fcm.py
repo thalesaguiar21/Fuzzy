@@ -3,6 +3,7 @@ import sklearn.datasets as skdata
 
 
 class FCM:
+
     def __init__(self, nclusters, fuzzyness):
         self.validate_params(nclusters, fuzzyness)
         self.partitions = []
@@ -12,7 +13,7 @@ class FCM:
         self.centroids = []
 
     def validate_params(self, nclusters, fuzzyness):
-        if fuzzyness <= 0:
+        if fuzzyness < 1:
             raise ValueError('Cluster fuzzyness must be at least one')
         if nclusters < 1:
             raise ValueError('There must be at least one cluster')
