@@ -1,7 +1,7 @@
-import numpy as np
+from enum import Enum, auto
 from itertools import product
 from .. import lse as regression
-from enum import Enum, auto
+import numpy as np
 
 
 class Layer(Enum):
