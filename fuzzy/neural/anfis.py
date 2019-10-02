@@ -1,5 +1,5 @@
-import anfys.neural.builder as builder
-import anfys.neural.learn as learn
+from . import builder
+from . import learn
 
 
 class ANFIS:

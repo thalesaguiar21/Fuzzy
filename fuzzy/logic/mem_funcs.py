@@ -1,7 +1,7 @@
 import math
 from abc import ABC, abstractmethod
 import numpy as np
-import anfys.lse as lse
+from .. import lse
 
 
 class MembershipFunction(ABC):

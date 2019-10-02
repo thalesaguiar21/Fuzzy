@@ -1,5 +1,5 @@
-from .context import anfys
-import anfys.fuzzy.operations.tnorm as tnorm
+from .context import fuzzy
+import fuzzy.logic.operations.tnorm as tnorm
 import unittest
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 from itertools import product
-import anfys.lse as regression
+from .. import lse as regression
 from enum import Enum, auto
 
 

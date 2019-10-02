@@ -1,5 +1,5 @@
 import numpy as np
-from anfys.fuzzy.subsets import FuzzySet
+from fuzzy.logic.subsets import FuzzySet
 
 
 def configure_model(anfis, qtd_inputs, stdev=1.0):
