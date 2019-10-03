@@ -1,5 +1,6 @@
 import numpy as np
 import sklearn.decomposition as skdecomp
+from .lse import Matricial
 
 
 class FCM:
@@ -88,6 +89,13 @@ class FGMM:
         pca_components = data.shape[1]
         pca = skdecomp.PCA(n_components=pca_components)
         transformed_points = pca.fit_transform(data)
+        # Take first and second dimension of transformed X, that is Y
+        v1s = transformed_points[:, 0]
+        v2s = transformed_points[:, 1]
+        squared_v2s = v2s ** 2.0
+        mlse = Matricial()
+        coefs = np.vstack((squared_v2s, np.ones(v2s.size)))
+        curve_vars = mlse.solve(coefs.T, v1s)
 
     def _compute_mixture_weights(self, partitions):
         cluster_relevance = np.sum(partitions, axis=0)
