@@ -96,12 +96,12 @@ class FGMM:
             for i in range(self.ncomponents):
                 parts_i = partitions[:, i]
                 ai, bi = _find_curve_parameters(parts_i, data, pca)
-                ai = 0.1
                 if abs(ai) < self.epsilon:
                     centre[i], cov[i] = self._compute_as_conventional_gmm(
                         parts_i, data, fuzzyness)
                 else:
                     centre[i], cov[i] = self._compute_as_bent_gmm()
+            self._update_partitions(partitions, centre, data, fuzzyness)
             break
 
     def _compute_as_conventional_gmm(self, partitions, data, m):
@@ -122,15 +122,16 @@ class FGMM:
     def predict_fuzzy(self, samples):
         pass
 
-    def _update_partitions(self, centre, data):
-        for sample in data:
-            self._make_memdegree(sample, centre)
+    def _update_partitions(self, partitions, centre, data, fuzzyness):
+        for i in range(data.shape[0]):
+            for j in range(centre.shape[0]):
+                partitions[i, j] = self._make_memdegree(data[i], centre, j, fuzzyness)
 
-    def _make_memdegree(self, sample, centre):
-        num = np.linalg.norm(sample - centre)
-        dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
+    def _make_memdegree(self, sample, centre, j, fuzzyness):
+        num = np.linalg.norm(sample - centre[j])
+        dists = [np.linalg.norm(sample - ck) for ck in centre]
         norm_dists = num / np.array(dists)
-        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-10)))
+        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (fuzzyness-10)))
         return mem_degree
 
 
