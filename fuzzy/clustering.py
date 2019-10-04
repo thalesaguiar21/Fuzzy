@@ -85,20 +85,29 @@ class FGMM:
     def fit(self, data, fuzzyness=2, tolerance=0.2):
         fcm = FCM(self.ncomponents, fuzzyness)
         partitions, _ = fcm.fit(data, tolerance)
-        mixture_weights = self._compute_mixture_weights(partitions)
-        pca_components = data.shape[1]
-        pca = skdecomp.PCA(n_components=pca_components)
-        transformed_points = pca.fit_transform(data)
-        # Take first and second dimension of transformed X, that is Y
-        v1s = transformed_points[:, 0]
-        v2s = transformed_points[:, 1]
-        squared_v2s = v2s ** 2.0
-        mlse = Matricial()
-        coefs = np.vstack((squared_v2s, np.ones(v2s.size)))
-        curve_vars = mlse.solve(coefs.T, v1s)
+        partitions_T = partitions.T
+        loglike = 3
+        threshold = 2
+        while loglike > threshold:
+            mixture_weights = self._compute_mixture_weights(partitions_T)
+            pca_components = data.shape[1]
+            pca = skdecomp.PCA(n_components=pca_components)
+            for i in range(self.ncomponents):
+                weighted_data = (partitions_T[i] * data.T).T
+                transformed_points = pca.fit_transform(weighted_data)
+                # Take first and second dimension of transformed X, that is Y
+                v1s = transformed_points[:, 0]
+                v2s = transformed_points[:, 1]
+                squared_v2s = v2s ** 2.0
+                mlse = Matricial()
+                coefs = np.vstack((squared_v2s, np.ones(v2s.size)))
+                curve_vars = mlse.solve(coefs.T, v1s)
+                breakpoint()
+            break
 
     def _compute_mixture_weights(self, partitions):
         cluster_relevance = np.sum(partitions, axis=0)
+        # Update to sum cluster_relvance instead of partitions
         total_weight = np.sum(partitions)
         return cluster_relevance / total_weight
 
