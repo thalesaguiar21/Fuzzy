@@ -86,22 +86,13 @@ class FGMM:
     def fit(self, data, fuzzyness=2, tolerance=0.2):
         fcm = FCM(self.ncomponents, fuzzyness)
         partitions, _ = fcm.fit(data, tolerance)
+        pca = skdecomp.PCA(n_components=data.shape[1])
         loglike = 3
         threshold = 2
         while loglike > threshold:
             mixture_weights = _compute_mixture_weights(partitions)
-            pca_components = data.shape[1]
-            pca = skdecomp.PCA(n_components=pca_components)
             for i in range(self.ncomponents):
-                weighted_data = (partitions[:, i] * data.T).T
-                transformed_points = pca.fit_transform(weighted_data)
-                # Take first and second dimension of transformed X, that is Y
-                v1s = transformed_points[:, 0]
-                v2s = transformed_points[:, 1]
-                squared_v2s = v2s ** 2.0
-                mlse = Matricial()
-                coefs = np.vstack((squared_v2s, np.ones(v2s.size)))
-                ai, bi = mlse.solve(coefs.T, v1s)
+                ai, bi = _find_curve_parameters(partitions[:, i], data, pca)
                 if abs(ai) < self.epsilon:
                     self._compute_as_conventional_gmm()
                 else:
@@ -120,6 +111,15 @@ class FGMM:
     def predict_fuzzy(self, samples):
         pass
 
+def _find_curve_parameters(partitions, data, pca):
+    weighted_data = (partitions * data.T).T
+    transformed_points = pca.fit_transform(weighted_data)
+    squared_x = transformed_points[:, 1] ** 2.0
+    result = transformed_points[:, 0]
+    coefs = np.vstack((squared_x, np.ones(squared_x.size)))
+    mlse = Matricial()
+    ai, bi = mlse.solve(coefs.T, result)
+    return ai, bi
 
 def _compute_mixture_weights(partitions):
     cluster_relevance = np.sum(partitions, axis=0)
