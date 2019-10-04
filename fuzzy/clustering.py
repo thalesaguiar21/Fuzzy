@@ -79,8 +79,9 @@ class FCM:
 class FGMM:
     """ Distance based Fuzzy Gaussian Mixture Model """
 
-    def __init__(self, ncomponents):
+    def __init__(self, ncomponents, epsilon):
         self.ncomponents = ncomponents
+        self.epsilon = epsilon
 
     def fit(self, data, fuzzyness=2, tolerance=0.2):
         fcm = FCM(self.ncomponents, fuzzyness)
@@ -101,8 +102,11 @@ class FGMM:
                 squared_v2s = v2s ** 2.0
                 mlse = Matricial()
                 coefs = np.vstack((squared_v2s, np.ones(v2s.size)))
-                curve_vars = mlse.solve(coefs.T, v1s)
-                breakpoint()
+                ai, bi = mlse.solve(coefs.T, v1s)
+                if abs(ai) < self.epsilon:
+                    self._compute_as_conventional_gmm()
+                else:
+                    self._compute_as_bent_gmm()
             break
 
     def _compute_mixture_weights(self, partitions):
@@ -110,6 +114,12 @@ class FGMM:
         # Update to sum cluster_relvance instead of partitions
         total_weight = np.sum(partitions)
         return cluster_relevance / total_weight
+
+    def _compute_as_conventional_gmm(self):
+        pass
+
+    def _compute_as_bent_gmm(self):
+        pass
 
     def predict(self, samples):
         pass

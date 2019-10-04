@@ -11,7 +11,7 @@ class TestsFGMM(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestsFGMM, self).__init__(*args, **kwargs)
-        self.fgmm = FGMM(4)
+        self.fgmm = FGMM(4, 1)
         data = np.loadtxt(FILEPATH)
         self.Xtrain = data[:350, :-1]
         self.Xtest = data[350:, :-1]
