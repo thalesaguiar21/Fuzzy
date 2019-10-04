@@ -84,6 +84,8 @@ class FGMM:
         self.epsilon = epsilon
 
     def fit(self, data, fuzzyness=2, tolerance=0.2):
+        centre = np.zeros((self.ncomponents, data.shape[1]))
+        cov = np.zeros((self.ncomponents, data.shape[1]))
         fcm = FCM(self.ncomponents, fuzzyness)
         partitions, _ = fcm.fit(data, tolerance)
         pca = skdecomp.PCA(n_components=data.shape[1])
@@ -94,10 +96,12 @@ class FGMM:
             for i in range(self.ncomponents):
                 parts_i = partitions[:, i]
                 ai, bi = _find_curve_parameters(parts_i, data, pca)
+                ai = 0.1
                 if abs(ai) < self.epsilon:
-                    self._compute_as_conventional_gmm(parts_i, data, fuzzyness)
+                    centre[i], cov[i] = self._compute_as_conventional_gmm(
+                        parts_i, data, fuzzyness)
                 else:
-                    self._compute_as_bent_gmm()
+                    centre[i], cov[i] = self._compute_as_bent_gmm()
             break
 
     def _compute_as_conventional_gmm(self, partitions, data, m):
@@ -110,13 +114,24 @@ class FGMM:
         return centre, covariances
 
     def _compute_as_bent_gmm(self):
-        pass
+        return np.array([]), np.array([])
 
     def predict(self, samples):
         pass
 
     def predict_fuzzy(self, samples):
         pass
+
+    def _update_partitions(self, centre, data):
+        for sample in data:
+            self._make_memdegree(sample, centre)
+
+    def _make_memdegree(self, sample, centre):
+        num = np.linalg.norm(sample - centre)
+        dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
+        norm_dists = num / np.array(dists)
+        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-10)))
+        return mem_degree
 
 
 def _compute_mixture_weights(partitions):
