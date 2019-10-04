@@ -90,7 +90,7 @@ class FGMM:
         loglike = 3
         threshold = 2
         while loglike > threshold:
-            mixture_weights = self._compute_mixture_weights(partitions_T)
+            mixture_weights = _compute_mixture_weights(partitions_T)
             pca_components = data.shape[1]
             pca = skdecomp.PCA(n_components=pca_components)
             for i in range(self.ncomponents):
@@ -109,12 +109,6 @@ class FGMM:
                     self._compute_as_bent_gmm()
             break
 
-    def _compute_mixture_weights(self, partitions):
-        cluster_relevance = np.sum(partitions, axis=0)
-        # Update to sum cluster_relvance instead of partitions
-        total_weight = np.sum(partitions)
-        return cluster_relevance / total_weight
-
     def _compute_as_conventional_gmm(self):
         pass
 
@@ -126,4 +120,11 @@ class FGMM:
 
     def predict_fuzzy(self, samples):
         pass
+
+
+def _compute_mixture_weights(partitions):
+    cluster_relevance = np.sum(partitions, axis=0)
+    # Update to sum cluster_relvance instead of partitions
+    total_weight = np.sum(partitions)
+    return cluster_relevance / total_weight
 
