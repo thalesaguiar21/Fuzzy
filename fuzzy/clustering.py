@@ -111,18 +111,24 @@ class FGMM:
     def predict_fuzzy(self, samples):
         pass
 
-def _find_curve_parameters(partitions, data, pca):
-    weighted_data = (partitions * data.T).T
-    transformed_points = pca.fit_transform(weighted_data)
-    squared_x = transformed_points[:, 1] ** 2.0
-    result = transformed_points[:, 0]
-    coefs = np.vstack((squared_x, np.ones(squared_x.size)))
-    mlse = Matricial()
-    ai, bi = mlse.solve(coefs.T, result)
-    return ai, bi
 
 def _compute_mixture_weights(partitions):
     cluster_relevance = np.sum(partitions, axis=0)
     total_weight = np.sum(cluster_relevance)
     return cluster_relevance / total_weight
+
+
+def _find_curve_parameters(partitions, data, pca):
+    weighted_data = (partitions * data.T).T
+    transformed_points = pca.fit_transform(weighted_data)
+    coefs, result = _make_system_matrices(transformed_points)
+    ai, bi = Matricial().solve(coefs, result)
+    return ai, bi
+
+
+def _make_system_matrices(points):
+    squared_x = points[:, 0]
+    y = points[:, 1]
+    coefs = np.vstack((squared_x, np.ones(squared_x.size)))
+    return coefs.T, y
 
