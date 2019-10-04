@@ -92,15 +92,22 @@ class FGMM:
         while loglike > threshold:
             mixture_weights = _compute_mixture_weights(partitions)
             for i in range(self.ncomponents):
-                ai, bi = _find_curve_parameters(partitions[:, i], data, pca)
+                parts_i = partitions[:, i]
+                ai, bi = _find_curve_parameters(parts_i, data, pca)
                 if abs(ai) < self.epsilon:
-                    self._compute_as_conventional_gmm()
+                    self._compute_as_conventional_gmm(parts_i, data, fuzzyness)
                 else:
                     self._compute_as_bent_gmm()
             break
 
-    def _compute_as_conventional_gmm(self):
-        pass
+    def _compute_as_conventional_gmm(self, partitions, data, m):
+        fuzz_parts = partitions ** m
+        weighted_points = np.sum((fuzz_parts * data.T).T, axis=0)
+        centre = weighted_points / np.sum(fuzz_parts)
+        variances = (data - centre) ** 2.0
+        weighted_variances = np.sum((fuzz_parts * variances.T).T, axis=0)
+        covariances = weighted_variances / np.sum(fuzz_parts)
+        return centre, covariances
 
     def _compute_as_bent_gmm(self):
         pass
