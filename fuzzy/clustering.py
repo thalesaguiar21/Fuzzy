@@ -1,6 +1,7 @@
 import numpy as np
 import sklearn.decomposition as skdecomp
 from .lse import Matricial
+from .pca import PCA
 
 
 class FCM:
@@ -88,7 +89,7 @@ class FGMM:
         cov = np.zeros((self.ncomponents, data.shape[1]))
         fcm = FCM(self.ncomponents, fuzzyness)
         partitions, _ = fcm.fit(data, tolerance)
-        pca = skdecomp.PCA(n_components=data.shape[1])
+        pca = PCA(n_components=data.shape[1])
         loglike = 3
         threshold = 2
         while loglike > threshold:
@@ -96,11 +97,16 @@ class FGMM:
             for i in range(self.ncomponents):
                 parts_i = partitions[:, i]
                 ai, bi = _find_curve_parameters(parts_i, data, pca)
+                ai = self.epsilon + 1
                 if abs(ai) < self.epsilon:
                     centre[i], cov[i] = self._compute_as_conventional_gmm(
                         parts_i, data, fuzzyness)
                 else:
-                    centre[i], cov[i] = self._compute_as_bent_gmm()
+                    centre[i], cov[i] = self._compute_as_bent_gmm(parts_i,
+                                                                  data,
+                                                                  fuzzyness,
+                                                                  pca,
+                                                                  bi)
             self._update_partitions(partitions, centre, data, fuzzyness)
             break
 
@@ -113,8 +119,15 @@ class FGMM:
         covariances = weighted_variances / np.sum(fuzz_parts)
         return centre, covariances
 
-    def _compute_as_bent_gmm(self):
-        return np.array([]), np.array([])
+    def _compute_as_bent_gmm(self, partitions, data, m, pca, bi):
+        fuzzparts = partitions ** m
+        weighted_points = np.sum((fuzzparts * data.T).T, axis=0)
+        means = weighted_points / np.sum(fuzzparts)
+        padded_bi = np.zeros((1, data.shape[1]))
+        padded_bi[0, 1] = bi
+        centres = means + 1.0/pca.eigenvalues @ padded_bi.T + pca.translation
+        covariances = weighted_points / np.sum(fuzzparts)
+        return centres, covariances
 
     def predict(self, samples):
         pass
