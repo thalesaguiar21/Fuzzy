@@ -4,6 +4,21 @@ from .lse import Matricial
 from .pca import PCA
 
 
+class Clusterizer:
+
+    def __init__(self):
+        self.builders = {}
+
+    def register_builder(self, model, builder):
+        self.builders[model] = builder
+
+    def create(self, model, **kwargs):
+        builder = self.builders[model]
+        if builder is None:
+            raise ValueError(f"Builder {builder} not registred!")
+        return builder(**kwargs)
+
+
 class FCM:
 
     def __init__(self, nclusters, fuzzyness):
@@ -75,6 +90,17 @@ class FCM:
         mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
 
+
+def fcm_builder(nclusters, fuzzyness):
+    validate_fcm_arguments()
+    return FCM(nclusters, fuzzyness)
+
+
+def validate_fcm_arguments(nclusters, fuzzyness):
+    if ncluster < 2:
+        raise ValueError('There must be at least two clusters')
+    if fuzzyness <= 1:
+        raise ValueError('Cluster fuzzyness must be greater than 1')
 
 
 class FGMM:
