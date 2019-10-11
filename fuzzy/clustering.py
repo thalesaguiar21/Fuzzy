@@ -71,7 +71,7 @@ class FCM:
         num = np.linalg.norm(sample - self.centroids[j])
         dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
         norm_dists = num / np.array(dists)
-        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-10)))
+        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-1.0)))
         return mem_degree
 
 
