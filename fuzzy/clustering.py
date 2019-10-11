@@ -22,7 +22,7 @@ class FCM:
     def fit(self, data, tolerance):
         self.npoints = data.shape[0]
         self.partitions = self._init_partitions()
-        breakpoint()
+        self.centroids = np.zeros((self.nclusters, data.shape[1]))
         error = np.inf
         while error > tolerance:
             self._update_centroids(data)
@@ -39,7 +39,6 @@ class FCM:
         return partitions
 
     def _update_centroids(self, data):
-       self.centroids = np.zeros((self.nclusters, data.shape[1]))
        for j in range(self.nclusters):
            denom = np.array([w ** self.m for w in self.partitions[:, j]])
            num = np.array([dt * wm for dt, wm in zip(data, denom)])
@@ -71,8 +70,8 @@ class FCM:
     def _make_memdegree(self, sample, j):
         num = np.linalg.norm(sample - self.centroids[j])
         dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
-        norm_dists = num / np.array(dists)
-        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (self.m-1.0)))
+        norm_dists = (num / np.array(dists)) ** (2.0 / (self.m-1.0))
+        mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
 
 
@@ -131,8 +130,8 @@ class FGMM:
     def _make_memdegree(self, sample, centre, j, fuzzyness):
         num = np.linalg.norm(sample - centre[j])
         dists = [np.linalg.norm(sample - ck) for ck in centre]
-        norm_dists = num / np.array(dists)
-        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (fuzzyness-1.0)))
+        norm_dists = (num / np.array(dists)) ** (2.0 / (fuzzyness-1.0))
+        mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
 
 
