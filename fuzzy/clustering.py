@@ -22,6 +22,7 @@ class FCM:
     def fit(self, data, tolerance):
         self.npoints = data.shape[0]
         self.partitions = self._init_partitions()
+        breakpoint()
         error = np.inf
         while error > tolerance:
             self._update_centroids(data)
@@ -131,7 +132,7 @@ class FGMM:
         num = np.linalg.norm(sample - centre[j])
         dists = [np.linalg.norm(sample - ck) for ck in centre]
         norm_dists = num / np.array(dists)
-        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (fuzzyness-10)))
+        mem_degree = 1.0 / (norm_dists.sum() ** (2.0 / (fuzzyness-1.0)))
         return mem_degree
 
 
