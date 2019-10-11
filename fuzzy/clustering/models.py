@@ -7,18 +7,11 @@ from .pca import PCA
 class FCM:
 
     def __init__(self, nclusters, fuzzyness):
-        self.validate_params(nclusters, fuzzyness)
         self.partitions = []
         self.m = fuzzyness
         self.nclusters = nclusters
         self.npoints = 0
         self.centroids = []
-
-    def validate_params(self, nclusters, fuzzyness):
-        if fuzzyness < 1:
-            raise ValueError('Cluster fuzzyness must be at least one')
-        if nclusters < 1:
-            raise ValueError('There must be at least one cluster')
 
     def fit(self, data, tolerance):
         self.npoints = data.shape[0]
