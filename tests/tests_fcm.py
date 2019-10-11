@@ -52,6 +52,24 @@ class TestsFCM(unittest.TestCase):
         parts = self.mfcm.partitions
         self.assertEqual(parts.shape, (350, 3))
 
+    def test_partitions_total_prob(self):
+        parts = self.mfcm.partitions
+        total_probs = np.sum(parts, axis=1)
+        for prob in total_probs:
+            self.assertAlmostEqual(prob, 1.0)
+
+    def test_partition_individual_prob(self):
+        for line in self.mfcm.partitions:
+            for part in line:
+                self.assertGreaterEqual(part, 0.0)
+                self.assertLessEqual(part, 1.0)
+
+    def test_partition_column_len(self):
+        col_prob_sum = np.sum(self.mfcm.partitions, axis=0)
+        for col_prob in col_prob_sum:
+            self.assertGreater(col_prob, 0)
+            self.assertLess(col_prob, self.mfcm.partitions.shape[0])
+
     def test_centroids_dim(self):
         centroids = self.mfcm.centroids
         self.assertEqual(centroids.shape, (3, 2))
