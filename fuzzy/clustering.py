@@ -194,3 +194,13 @@ def _make_system_matrices(points):
     coefs = np.vstack((squared_x, np.ones(squared_x.size)))
     return coefs.T, y
 
+def fgmm_builder(ncomponents, threshold):
+    validate_fgmm_arguments(ncomponents, threshold)
+    return FGMM(ncomponents, threshold)
+
+def validate_fgmm_arguments(ncomponents, threshold):
+    if ncomponents < 2:
+        raise ValueError('There must be at least two clusters')
+    if threshold < 0.001:
+        raise ValueError('Threshold must be at least 0.001')
+
