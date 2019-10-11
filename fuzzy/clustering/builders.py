@@ -2,12 +2,12 @@ from .models import FCM, FGMM
 
 
 def fcm(nclusters, fuzzyness):
-    validate_fcm_arguments()
+    validate_fcm_arguments(nclusters, fuzzyness)
     return FCM(nclusters, fuzzyness)
 
 
 def validate_fcm_arguments(nclusters, fuzzyness):
-    if ncluster < 2:
+    if nclusters < 2:
         raise ValueError('There must be at least two clusters')
     if fuzzyness <= 1:
         raise ValueError('Cluster fuzzyness must be greater than 1')

@@ -18,5 +18,5 @@ class Clusterizer:
 
 factory = Clusterizer()
 factory.register_builder('fcm', builders.fcm)
-factory.register_builder('fggm', builders.fgmm)
+factory.register_builder('fgmm', builders.fgmm)
 

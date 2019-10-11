@@ -1,7 +1,7 @@
 import numpy as np
 import sklearn.decomposition as skdecomp
-from .lse import Matricial
-from .pca import PCA
+from ..lse import Matricial
+from ..pca import PCA
 
 
 class FCM:
