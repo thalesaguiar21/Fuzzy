@@ -13,8 +13,8 @@ class FCM:
         self.centroids = []
 
     def fit(self, data, tolerance):
-        _validate(self.nclusters, self.fuzzyness)
-        self._initialise_parts_centre_points(
+        _validate(self.nclusters, self.m)
+        self._initialise_parts_centre_points(data)
         error = np.inf
         while error > tolerance:
             self._update_centroids(data)
@@ -26,7 +26,7 @@ class FCM:
     def _initialise_parts_centre_points(self, data):
         self.npoints = data.shape[0]
         self.partitions = self._init_partitions()
-        self.centroids = np.zeros((self.ncluesters, data.shape[1]))
+        self.centroids = np.zeros((self.nclusters, data.shape[1]))
 
     def _init_partitions(self):
         partitions = np.zeros((self.npoints, self.nclusters))

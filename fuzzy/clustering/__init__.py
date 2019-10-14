@@ -1,3 +1,5 @@
-from fcm import FCM
-from fgmm import FGMM
+from .fcm import FCM
+from .fgmm import FGMM
+
+__all__ = ['FCM', 'FGMM']
 

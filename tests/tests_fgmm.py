@@ -1,5 +1,5 @@
 from .context import fuzzy
-from fuzzy.clustering.clusters import factory as clusters
+from fuzzy.clustering import FGMM
 import numpy as np
 import unittest
 import os
@@ -11,7 +11,7 @@ class TestsFGMM(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestsFGMM, self).__init__(*args, **kwargs)
-        self.fgmm = clusters.create('fgmm', ncomponents=4, threshold=1)
+        self.fgmm = FGMM(ncomponents=4, epsilon=1)
         data = np.loadtxt(FILEPATH)
         self.Xtrain = data[:350, :-1]
         self.Xtest = data[350:, :-1]

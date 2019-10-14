@@ -1,5 +1,5 @@
 from .context import fuzzy
-from fuzzy.clustering.clusters import factory as clusters
+from fuzzy.clustering import FCM
 import unittest
 import numpy as np
 import os
@@ -16,43 +16,31 @@ class TestsFCM(unittest.TestCase):
         self.Xtest = dataset[350:, :-1]
         self.Ytrain = dataset[:350, -1]
         self.Ytest = dataset[350:, -1]
-        self.mfcm = clusters.create('fcm', nclusters=3, fuzzyness=2)
+        self.mfcm = FCM(nclusters=3, fuzzyness=2)
         self.mfcm.fit(self.Xtrain, 0.2)
 
     def setUp(self):
         pass
 
     def test_cluster_fuzzyness_out(self):
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=3, fuzzyness=-2)
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=3, fuzzyness=-1)
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=3, fuzzyness=0)
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=3, fuzzyness=0.999)
+        self.assertRaises(ValueError, FCM, 3, -2)
+        self.assertRaises(ValueError, FCM, 3, -1)
+        self.assertRaises(ValueError, FCM, 3, 0)
+        self.assertRaises(ValueError, FCM, 3, 0.999)
 
     def test_ncluster_out(self):
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=-1, fuzzyness=2)
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=0, fuzzyness=2)
-        self.assertRaises(ValueError, clusters.create,
-                          'fcm', nclusters=0.1, fuzzyness=2)
+        self.assertRaises(ValueError, FCM, 1, 2)
+        self.assertRaises(ValueError, FCM, 0.1, 2)
+        self.assertRaises(ValueError, FCM, 0, 2)
 
     def test_fuzzyness_in(self):
-        self.assertNotRaise(clusters.create, model='fcm', nclusters=3,
-                            fuzzyness=2)
-        self.assertNotRaise(clusters.create, model='fcm', nclusters=3,
-                            fuzzyness=2.001)
-        self.assertNotRaise(clusters.create, model='fcm', nclusters=3,
-                            fuzzyness=3)
+        self.assertNotRaises(ValueError, FCM, 3, 2)
+        self.assertNotRaises(ValueError, FCM, 3, 2.001)
+        self.assertNotRaises(ValueError, FCM, 3, 3)
 
     def test_ncluster_in(self):
-        self.assertNotRaise(clusters.create, model='fcm', nclusters=2,
-                            fuzzyness=2)
-        self.assertNotRaise(clusters.create, model='fcm', nclusters=3,
-                            fuzzyness=2)
+        self.assertNotRaises(ValueError, FCM, 2, 2)
+        self.assertNotRaises(ValueError, FCM, 3, 2)
 
     def assertNotRaise(self, func, **kwargs):
         try:

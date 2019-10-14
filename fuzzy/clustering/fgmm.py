@@ -1,4 +1,6 @@
 import numpy as np
+
+from .fcm import FCM
 from ..lse import Matricial
 from ..pca import PCA
 
