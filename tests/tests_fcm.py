@@ -19,32 +19,45 @@ class TestsFCM(unittest.TestCase):
         self.mfcm = FCM(nclusters=3, fuzzyness=2)
         self.mfcm.fit(self.Xtrain, 0.2)
 
-    def setUp(self):
-        pass
+    def tearDown(self):
+        self.mfcm.nclusters = 3
+        self.mfcm.fuzzyness = 2
+
+    def setFCM(self, nclusters, m):
+        self.mfcm.nclusters = nclusters
+        self.mfcm.m = m
+
+    def set_fit_raising(self, nclusters, m, error):
+        self.setFCM(nclusters, m)
+        self.assertRaises(error, self.mfcm.fit, self.Xtrain, 0.2)
+
+    def set_fit_not_raising(self, nclusters, m):
+        self.setFCM(nclusters, m)
+        self.assertNotRaise(self.mfcm.fit, self.Xtrain, 0.2)
 
     def test_cluster_fuzzyness_out(self):
-        self.assertRaises(ValueError, FCM, 3, -2)
-        self.assertRaises(ValueError, FCM, 3, -1)
-        self.assertRaises(ValueError, FCM, 3, 0)
-        self.assertRaises(ValueError, FCM, 3, 0.999)
+        self.set_fit_raising(3, -2, ValueError)
+        self.set_fit_raising(3, -1, ValueError)
+        self.set_fit_raising(3, -0, ValueError)
+        self.set_fit_raising(3, -0.999, ValueError)
 
     def test_ncluster_out(self):
-        self.assertRaises(ValueError, FCM, 1, 2)
-        self.assertRaises(ValueError, FCM, 0.1, 2)
-        self.assertRaises(ValueError, FCM, 0, 2)
+        self.set_fit_raising(1, 2, ValueError)
+        self.set_fit_raising(0.1, 2, ValueError)
+        self.set_fit_raising(0, 2, ValueError)
 
     def test_fuzzyness_in(self):
-        self.assertNotRaises(ValueError, FCM, 3, 2)
-        self.assertNotRaises(ValueError, FCM, 3, 2.001)
-        self.assertNotRaises(ValueError, FCM, 3, 3)
+        self.set_fit_not_raising(3, 2)
+        self.set_fit_not_raising(3, 2.001)
+        self.set_fit_not_raising(3, 3)
 
     def test_ncluster_in(self):
-        self.assertNotRaises(ValueError, FCM, 2, 2)
-        self.assertNotRaises(ValueError, FCM, 3, 2)
+        self.set_fit_not_raising(2, 2)
+        self.set_fit_not_raising(3, 2)
 
-    def assertNotRaise(self, func, **kwargs):
+    def assertNotRaise(self, func, *args):
         try:
-            func(**kwargs)
+            func(*args)
         except:
             self.fail()
 
