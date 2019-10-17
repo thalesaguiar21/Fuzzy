@@ -1,5 +1,5 @@
 from .context import fuzzy
-from fuzzy.clustering import FGMM
+from fuzzy.cluster import FGMM
 import numpy as np
 import unittest
 import os
