@@ -8,14 +8,17 @@ from ..pca import PCA
 class FGMM:
     """ Probability based Fuzzy Gaussian Mixture Model """
 
-    def __init__(self, ncomponents, epsilon):
+    def __init__(self, ncomponents, epsilon, fuzz=2):
         self.ncomponents = ncomponents
         self.epsilon = epsilon
+        self._partitions = []
+        self._centres = []
+        self.fuzz = fuzz
 
-    def fit(self, data, fuzzyness=2, tolerance=0.2):
+    def fit(self, data, fuzz=2, tolerance=0.2):
         centre = np.zeros((self.ncomponents, data.shape[1]))
         cov = np.zeros((self.ncomponents, data.shape[1]))
-        fcm = FCM(self.ncomponents, fuzzyness)
+        fcm = FCM(self.ncomponents, self.fuzz)
         partitions, _ = fcm.fit(data, tolerance)
         pca = PCA(n_components=data.shape[1])
         loglike = 3
@@ -28,18 +31,18 @@ class FGMM:
                 ai = self.epsilon + 1
                 if abs(ai) < self.epsilon:
                     centre[i], cov[i] = self._compute_as_conventional_gmm(
-                        parts_i, data, fuzzyness)
+                        parts_i, data, self.fuzz)
                 else:
                     centre[i], cov[i] = self._compute_as_bent_gmm(parts_i,
                                                                   data,
-                                                                  fuzzyness,
+                                                                  self.fuzz,
                                                                   pca,
                                                                   bi)
-            self._update_partitions(partitions, centre, data, fuzzyness)
+            self._update_partitions(partitions, centre, data)
             break
 
-    def _compute_as_conventional_gmm(self, partitions, data, m):
-        fuzz_parts = partitions ** m
+    def _compute_as_conventional_gmm(self, partitions, data):
+        fuzz_parts = partitions ** self.fuzz
         weighted_points = np.sum((fuzz_parts * data.T).T, axis=0)
         centre = weighted_points / np.sum(fuzz_parts)
         variances = (data - centre) ** 2.0
@@ -63,15 +66,15 @@ class FGMM:
     def predict_fuzzy(self, samples):
         pass
 
-    def _update_partitions(self, partitions, centre, data, fuzzyness):
+    def _update_partitions(self, partitions, centre, data):
         for i in range(data.shape[0]):
             for j in range(centre.shape[0]):
-                partitions[i, j] = self._make_memdegree(data[i], centre, j, fuzzyness)
+                partitions[i, j] = self._make_memdegree(data[i], centre, j)
 
-    def _make_memdegree(self, sample, centre, j, fuzzyness):
+    def _make_memdegree(self, sample, centre, j):
         num = np.linalg.norm(sample - centre[j])
         dists = [np.linalg.norm(sample - ck) for ck in centre]
-        norm_dists = (num / np.array(dists)) ** (2.0 / (fuzzyness-1.0))
+        norm_dists = (num / np.array(dists)) ** (2.0 / (self.fuzz-1.0))
         mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
 
