@@ -35,7 +35,6 @@ class FGMM:
                 else:
                     centre[i], cov[i] = self._compute_as_bent_gmm(parts_i,
                                                                   data,
-                                                                  self.fuzz,
                                                                   pca,
                                                                   bi)
             self._update_partitions(partitions, centre, data)
@@ -50,8 +49,8 @@ class FGMM:
         covariances = weighted_variances / np.sum(fuzz_parts)
         return centre, covariances
 
-    def _compute_as_bent_gmm(self, partitions, data, m, pca, bi):
-        fuzzparts = partitions ** m
+    def _compute_as_bent_gmm(self, partitions, data, pca, bi):
+        fuzzparts = partitions ** self.fuzz
         weighted_points = np.sum((fuzzparts * data.T).T, axis=0)
         means = weighted_points / np.sum(fuzzparts)
         padded_bi = np.zeros((1, data.shape[1]))
