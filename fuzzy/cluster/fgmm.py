@@ -40,6 +40,12 @@ class FGMM:
             self._update_partitions(partitions, centre, data)
             break
 
+    def _init_centres_covs_parts_pca(self, data, tolerance):
+        self._centre = np.zeros((self.ncomponents, data.shape[1]))
+        self._cov = np.zeros((self.ncomponents, data.shape[1]))
+        fcm = FCM(self.ncomponents, data.shape[1])
+        self._partitions, _ = fcm.fit(data, tolerance)
+
     def _compute_as_conventional_gmm(self, partitions, data):
         fuzz_parts = partitions ** self.fuzz
         weighted_points = np.sum((fuzz_parts * data.T).T, axis=0)
