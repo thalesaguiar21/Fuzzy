@@ -57,7 +57,7 @@ def _averaged_fire_strength(fire_strengths):
 def _update_consequent_parameters(anfis, layers, entry, output):
     weights = layers[Layer.NORMALIZER]
     if isinstance(anfis, ):
-        _update_consequent_parameters(anfis, entry, output, weights)
+        _solve_consequent_system(anfis, entry, output, weights)
     else:
         raise ValueError(
             'Unkown {} model passed to learn.update_parameters!'.format(anfis))
@@ -67,10 +67,12 @@ def _solve_consequent_system(anfis, entry, output, weights):
     column_weights = np.array([weights]).T
     coefs = column_weights.dot(entry)
     anfis.add_linsys_equation(coefs, output)
-    anfis.cons_params = regression.solve(
-        anfis.linsys_coefs, anfis.linsys_resul)
+    anfis.cons_params = regression.solve(anfis.linsys_coefs, anfis.linsys_resul)
 
 
 def _prediction(defuzzified_values):
     return np.sum(defuzzified_values)
 
+
+def _backprop():
+    pass
