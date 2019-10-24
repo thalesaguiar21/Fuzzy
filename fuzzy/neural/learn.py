@@ -1,7 +1,8 @@
 from enum import Enum, auto
 from itertools import product
-from .. import lse as regression
 import numpy as np
+
+from .. import lse as regression
 
 
 class Layer(Enum):
@@ -72,3 +73,4 @@ def _solve_consequent_system(anfis, entry, output, weights):
 
 def _prediction(defuzzified_values):
     return np.sum(defuzzified_values)
+
