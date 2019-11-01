@@ -17,6 +17,10 @@ def hybrid_online(anfis, entry, output):
     l1tol3 = _half_forward_pass(entry, output)
     l4 = _update_consequent_parameters(anfis, l1tol3, entry, output)
     l5 = _prediction(l4)
+    prop_errors = _backprop(anfis)
+    eta = anfis.step /  math.sqrt(np.sum(prop_errors ** 2))
+    dAlpha = prop_errors * (-eta)
+    anfis.prem_params + d_alpha
     return l5
 
 
@@ -74,5 +78,11 @@ def _prediction(defuzzified_values):
     return np.sum(defuzzified_values)
 
 
-def _backprop():
-    pass
+def _backprop(anfis):
+   do54 = anfis.qtd_rules
+   do43 = l4 / l3
+   l2_sum = l2.sum()
+   do32 = [(l2_sum - wi) / (l2_sum**2) for wi in l3]
+   do21 = l2 / l1
+   do1A = 1.0
+   return do54 * do43 * do32 * do21 * do1A
