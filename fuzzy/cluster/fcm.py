@@ -5,18 +5,19 @@ from ..pca import PCA
 
 class FCM:
 
-    def __init__(self, nclusters, fuzzyness):
+    def __init__(self, nclusters, fuzzyness, tol=1e-2):
         self.partitions = []
         self.m = fuzzyness
         self.nclusters = nclusters
         self.npoints = 0
         self.centroids = []
+        self.tol = tol
 
-    def fit(self, data, tolerance):
+    def fit(self, data):
         _validate(self.nclusters, self.m)
         self._initialise_parts_centre_points(data)
         error = np.inf
-        while error > tolerance:
+        while error > self.tol:
             self._update_centroids(data)
             new_partitions = self._update_partitions(data)
             error = np.linalg.norm(new_partitions - self.partitions)
