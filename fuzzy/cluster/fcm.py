@@ -72,6 +72,11 @@ class FCM:
         mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
 
+    def set_params(**kwargs):
+        self.nclusters = kwargs['nclusters']
+        self.m = kwargs['fuzzyness']
+        self.tol = kwargs['tol']
+
 
 def _validate(nclusters, fuzzyness):
     if nclusters < 2:
