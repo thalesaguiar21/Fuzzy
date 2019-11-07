@@ -76,9 +76,12 @@ class FCM:
         return mem_degree
 
     def set_params(self, **kwargs):
-        self.nclusters = kwargs['nclusters']
-        self.m = kwargs['fuzzyness']
-        self.tol = kwargs['tol']
+        if 'nclusters' in kwargs:
+            self.nclusters = kwargs['nclusters']
+        if 'fuzzyness' in kwargs:
+            self.m = kwargs['fuzzyness']
+        if 'tol' in kwargs:
+            self.tol = kwargs['tol']
 
 
 def _validate(nclusters, fuzzyness):
