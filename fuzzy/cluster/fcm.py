@@ -13,13 +13,13 @@ class FCM:
         self.centroids = []
         self.tol = tol
 
-    def fit(self, data):
+    def fit(self, X, Y):
         _validate(self.nclusters, self.m)
-        self._initialise_parts_centre_points(data)
+        self._initialise_parts_centre_points(X)
         error = np.inf
         while error > self.tol:
-            self._update_centroids(data)
-            new_partitions = self._update_partitions(data)
+            self._update_centroids(X)
+            new_partitions = self._update_partitions(X)
             error = np.linalg.norm(new_partitions - self.partitions)
             self.partitions = new_partitions
         return self.partitions, self.centroids
