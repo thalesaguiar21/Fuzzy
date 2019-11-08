@@ -50,9 +50,6 @@ class FCM:
         return U
 
     def predict(self, samples):
-        return np.array([self._predict(sample) for sample in samples])
-
-    def _predict(self, samples):
         """ Associate and classify a sample as the class with the highest member
         ship degree """
         mem_degrees = self.predict_fuzz(samples)
