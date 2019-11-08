@@ -68,9 +68,18 @@ class FCM:
     def _make_memdegree(self, sample, j):
         num = np.linalg.norm(sample - self.centroids[j])
         dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
-        norm_dists = (num / np.array(dists)) ** (2.0 / (self.m-1.0))
+        norm_dists = _normalised_dists(num, dists)
         mem_degree = 1.0 / norm_dists.sum()
         return mem_degree
+
+    def _normalise_dists(num, dists):
+        normalised_dists = []
+        for dist in dists:
+            if dist == 0.0:
+                normalised_dists.append(0.0)
+            else:
+                normalised_dists.append((num/dist) ** (2.0 / (self.m-1.0)))
+        return normalised_dists
 
     def set_params(self, **kwargs):
         if 'nclusters' in kwargs:
