@@ -3,6 +3,8 @@ from fuzzy.cluster import FCM
 import unittest
 import numpy as np
 import os
+from sklearn.metrics import accuracy_score
+from sklearn.cluster import KMeans
 
 DIRNAME = os.path.dirname(__file__)
 FILEPATH = os.path.join(DIRNAME, 'dataset_blob.txt')
@@ -114,4 +116,11 @@ class TestsFCM(unittest.TestCase):
             self.mfcm.predict(self.Xtest)
         except:
             self.fail()
+
+    def test_accuracy(self):
+        preds = self.mfcm.predict(self.Xtrain)
+        accuracy = accuracy_score(preds, self.Ytrain)
+        self.assertGreaterEqual(accuracy, 0.0)
+        self.assertLess(accuracy, 1.0)
+
 
