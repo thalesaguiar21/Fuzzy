@@ -5,14 +5,13 @@ from ..pca import PCA
 
 class FCM:
 
-    def __init__(self, nclusters, fuzzyness, tol=1e-2, max_iter=200):
+    def __init__(self, nclusters, fuzzyness, tol=1e-2):
         self.partitions = []
         self.m = fuzzyness
         self.nclusters = nclusters
         self.npoints = 0
         self.centroids = []
         self.tol = tol
-        self.max_iter = max_iter
 
     def fit(self, X, Y):
         _validate(self.nclusters, self.m)
@@ -40,7 +39,7 @@ class FCM:
         return partitions
 
     def has_converged(self, error, cur_iter):
-        return error <= self.tol or cur_iter == self.max_iter
+        return error <= self.tol
 
     def _update_centroids(self, data):
         fuzzied_parts = self.partitions ** self.m
