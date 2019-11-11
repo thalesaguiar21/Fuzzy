@@ -44,15 +44,29 @@ class FCM:
 
     def _update_centroids(self, data):
         fuzzied_parts = self.partitions ** self.m
-        dt_sum = fuzzied_parts.T.dot(data)
+        dt_sum = fuzzied_parts.T @ data
         self.centroids = dt_sum / fuzzied_parts.sum()
 
     def _update_partitions(self, data):
-        U = np.zeros((self.npoints, self.nclusters))
-        for i in range(self.npoints):
+        dists = self._make_dists(data)
+        nonzero_dist = np.fmax(dists, np.finfo(np.float64).eps)
+        return self._make_memdegree(nonzero_dist)
+
+    def _make_dists(self, data):
+        dists = np.zeros((data.shape[0], self.nclusters))
+        for i in range(data.shape[0]):
             for j in range(self.nclusters):
-                U[i, j] = self._make_memdegree(data[i], j)
-        return U
+                dists[i, j] = np.linalg.norm(data[i] - self.centroids[j])
+        return dists
+
+    def _make_memdegree(self, dists):
+        mem_degrees = np.zeros((dists.shape[0], self.nclusters))
+        for i in range(dists.shape[0]):
+            for j in range(self.nclusters):
+                xi_dist = dists[i, j] / dists[i, :]
+                norm_xi_dist = xi_dist ** (2.0 / (self.m-1.0))
+                mem_degrees[i, j] = 1.0 / norm_xi_dist.sum()
+        return mem_degrees
 
     def predict(self, samples):
         """ Associate and classify a sample as the class with the highest member
@@ -64,28 +78,7 @@ class FCM:
         """ Compute the membership degree of a sample to every cluster """
         if samples is None or len(samples) == 0:
             return []
-        mem_degrees = np.zeros((samples.shape[0], self.nclusters))
-        for i in range(samples.shape[0]):
-            for j in range(self.nclusters):
-                mem_degrees[i, j] = self._make_memdegree(samples[i], j)
-        return mem_degrees
-
-    def _make_memdegree(self, sample, j):
-        num = np.linalg.norm(sample - self.centroids[j])
-        dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
-        mem_degree = np.array(self._normalise_dists(num, dists))
-        return mem_degree
-
-    def _normalise_dists(self, num, dists):
-        normalised_dists = []
-        for dist in dists:
-            if dist == 0.0:
-                normalised_dists.append(0.0)
-            else:
-                normalised_dists.append((num/dist) ** (2.0 / (self.m-1.0)))
-        norm_dist_sum = np.sum(normalised_dists)
-        mdegree = 0.0 if norm_dist_sum == 0 else 1.0 / norm_dist_sum
-        return mdegree
+        return self._update_partitions(samples)
 
     def set_params(self, **kwargs):
         if 'nclusters' in kwargs:
