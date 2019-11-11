@@ -19,7 +19,7 @@ class FCM:
         self._initialise_parts_centre_points(X)
         error = np.inf
         cur_iter = 1
-        while not self._is_trained(error, cur_iter):
+        while not self.has_converged(error, cur_iter):
             self._update_centroids(X)
             new_partitions = self._update_partitions(X)
             error = np.linalg.norm(new_partitions - self.partitions)
@@ -32,15 +32,15 @@ class FCM:
         self.partitions = self._init_partitions()
         self.centroids = np.zeros((self.nclusters, data.shape[1]))
 
-    def _is_trained(self, error, cur_iter):
-        return error <= self.tol or cur_iter == self.max_iter
-
     def _init_partitions(self):
         partitions = np.zeros((self.npoints, self.nclusters))
         for part in partitions:
             clust = np.random.randint(0, self.nclusters)
             part[clust] = 1.0
         return partitions
+
+    def has_converged(self, error, cur_iter):
+        return error <= self.tol or cur_iter == self.max_iter
 
     def _update_centroids(self, data):
        for j in range(self.nclusters):
