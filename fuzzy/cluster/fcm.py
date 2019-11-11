@@ -43,10 +43,9 @@ class FCM:
         return error <= self.tol or cur_iter == self.max_iter
 
     def _update_centroids(self, data):
-       for j in range(self.nclusters):
-           denom = np.array([w ** self.m for w in self.partitions[:, j]])
-           num = np.array([dt * wm for dt, wm in zip(data, denom)])
-           self.centroids[j] = num.sum(axis=0) / denom.sum()
+        fuzzied_parts = self.partitions ** self.m
+        dt_sum = fuzzied_parts.T.dot(data)
+        self.centroids = dt_sum / fuzzied_parts.sum()
 
     def _update_partitions(self, data):
         U = np.zeros((self.npoints, self.nclusters))
