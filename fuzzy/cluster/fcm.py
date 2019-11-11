@@ -32,10 +32,9 @@ class FCM:
         self.centroids = np.zeros((self.nclusters, data.shape[1]))
 
     def _init_partitions(self):
-        partitions = np.zeros((self.npoints, self.nclusters))
-        for part in partitions:
-            clust = np.random.randint(0, self.nclusters)
-            part[clust] = 1.0
+        partitions = np.random.rand(self.npoints, self.nclusters)
+        for i in range(self.npoints):
+            partitions[i] = partitions[i] / partitions[i].sum()
         return partitions
 
     def has_converged(self, error, cur_iter):
