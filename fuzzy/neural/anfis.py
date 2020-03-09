@@ -24,6 +24,13 @@ class ANFIS:
                 learn.hybrid_online(entry, output)
             epoch += 1
 
+    def hybrid_offline(self, inp, out, max_epochs):
+        builder.configure_model(self, inputs.shape[0])
+        for x, y in zip(inp, out):
+            l1 = learn._fuzzysets_membership_degrees(self, x)
+            l2 = learn._rules_fire_strength(self, l1)
+            l3 = learn._averaged_fire_strength(self, l2)
+
     def add_linsys_equation(self, coefs, result):
         self.linsys_coefs.append(coefs)
         self.linsys_resul.append(result)
@@ -36,3 +43,4 @@ class Sugeno(ANFIS):
 
     def __init__(self, subset_size):
         super().__init__(subset_size)
+
