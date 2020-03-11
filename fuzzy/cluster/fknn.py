@@ -1,35 +1,22 @@
+from dataclasses import dataclass
+
 import numpy as np
 
 
-def fknn(ukn, X, Y, k, p):
-    n_points, dim = X.shape
-    k = clip(k, 1, n_points)
-    if Y.size != n_points:
-        raise ValueError('Different number of labels and samples')
+class FKNN:
 
-    neighbours = [Y[0]]
-    dists = [minkowski(ukn, X[0], p)]
-    for i in range(1, k):
-        dist = minkowski(ukn, X[i], p)
-        j = 0
-        while j < i and dist > dists[j]:
-            j += 1
-        dists.insert(j, dist)
-        neighbours.insert(j, Y[i])
+    def __init__(self, k, p, kdtree=None):
+        self.k = k
+        self.p = p
+        self.memberships = []
+        slef.kdtree = kdtree
 
-    i = k + 1
-    while i < n_points:
-        dist = minkowski(ukn, X[i])
-        if i < k:
-            dists.append(dist)
-        else:
-            for j in range(len(dists)):
-                if dists[j] > dist:
-                    dists.append(dist)
-                    dists.pop(j)
-                    neighbours.pop(j)
-                    neighbours.insert(j, Y[i])
-        i += 1
+    def fit(self, X, Y):
+        pass
+
+    def find_neighbours(self, x):
+        pass
+
 
 
 def clip(x, lower, higher):
@@ -45,8 +32,5 @@ def minkowski(a, b, p):
     pow_dists = np.abs(a - b)**p
     return np.abs(pow_dists).sum() ** (1.0/p)
 
-
-X, Y = np.arange(10).reshape(5, 2), np.arange(5)
-ukn = np.array([1, 2])
-fknn(ukn, X, Y, 10, 2)
+breakpoint()
 
