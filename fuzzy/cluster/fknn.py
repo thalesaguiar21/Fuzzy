@@ -1,15 +1,19 @@
-from dataclasses import dataclass
-
 import numpy as np
 
 
-class FKNN:
 
-    def __init__(self, k, p, kdtree=None):
+class FKNN:
+    ''' A Fuzzy K-Nearest Neighbours algorithm
+
+    Args:
+        k: the number of neighbours
+        p: the distance power fo Minkowski metric
+    '''
+    def __init__(self, k, p, tree=None):
         self.k = k
         self.p = p
-        self.memberships = []
-        slef.kdtree = kdtree
+        self._memberships = []
+        self._tree = tree
 
     def fit(self, X, Y):
         pass
