@@ -25,10 +25,14 @@ class FKNN:
 
     def predict(self, x):
         neighbours = self._find_neighbours(x)
+        mdegrees = []
         dists = []
         for neigh in neighbours:
-            mdegrees = self._compute_mdegrees(neigh)
-        return -1
+            dist = np.abs(x - _points(neigh)) ** (self.p/(self.m-1))
+            dists.append(dist.sum())
+            mdegrees.append(self._compute_mdegrees(neigh))
+        pred = np.dot(dists, mdegrees) / sum(dists)
+        return pred
 
     def _compute_mdegrees(self, point):
         mdegrees = np.zeros(self._nclasses)
