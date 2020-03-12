@@ -10,7 +10,7 @@ class Node(namedtuple('Node', 'loc lbl left right')):
         return f'({self.left}, {self.loc}, {self.right})'
 
 
-def kdtree(points, depth=0):
+def build(points, depth=0):
     if len(points) == 0:
         return None
     dim = len(points[0]) - 1 # The last axis is the label
