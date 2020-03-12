@@ -1,5 +1,8 @@
+from collections import defaultdict
+
 import numpy as np
 
+from . import kdtree
 
 
 class FKNN:
@@ -16,10 +19,27 @@ class FKNN:
         self._tree = tree
 
     def fit(self, X, Y):
-        pass
+        labeled_data = np.hstack((X, Y)).tolist()
+        self._tree = kdtree.build(labeled_data)
 
-    def find_neighbours(self, x):
-        pass
+    def predict(self, x):
+        neighbours = kdtree.find_neighbours(self._tree, x, self.k, self.p)
+        pred = getmostfrequent(neighbours[:][-1])
+        return pred
+
+
+def getmostfrequent(sequence):
+    max_ = 0
+    freq_label = None
+    counters = defaultdict(int)
+    for x in sequence:
+        counters[x] += 1
+    for x in counters:
+        if counters[x] > max_:
+            max_ = counters[x]
+            freq_label = x
+    return x
+
 
 
 
