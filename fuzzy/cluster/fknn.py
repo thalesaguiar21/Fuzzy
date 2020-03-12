@@ -30,7 +30,5 @@ def minkowski(a, b, p):
     if a.shape != b.shape:
         raise ValueError('Cannot compute with different array dimensions')
     pow_dists = np.abs(a - b)**p
-    return np.abs(pow_dists).sum() ** (1.0/p)
-
-breakpoint()
+    return pow_dists.sum() ** (1.0/p)
 
