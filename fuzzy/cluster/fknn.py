@@ -12,15 +12,30 @@ class FKNN:
         k: the number of neighbours
         p: the distance power fo Minkowski metric
     '''
-    def __init__(self, k, p, tree=None):
+    def __init__(self, k, p, m, tree=None):
         self.k = k
         self.p = p
+        self.m = 2 if m < 2 else m
         self._mdegrees = []
         self._tree = tree
+        self._nclasses = 0
 
     def fit(self, X, Y):
+        self._nclasses = len(np.unique(Y))
         self._tree = _organise_data(X, Y)
         self._compute_mdegrees(X, Y)
+
+    def predict(self, x):
+        neighbours = self.find_neighbours(x)
+        dists = []
+        for neigh in _points(neighbours):
+            dist = np.abs(x - neigh) ** (2/(self.m-1))
+            dists.append(dist)
+            neighbours = self.find_neighbours(neigh)
+        return -1
+
+    def find_neighbours(self, x):
+        return kdtree.find_neighbours(self._tree, x, self.k, self.p)
 
     def _compute_mdegrees(self, X, Y):
         n_classes, n_samples = len(np.unique(Y)), Y.shape[0]
@@ -37,9 +52,6 @@ class FKNN:
         mdegree[cls] += 0.51
         return mdegree
 
-    def predict(self, x):
-        return -1
-
 
 def _organise_data(X, Y):
     labeled_data = np.hstack((X, Y))
@@ -49,6 +61,9 @@ def _organise_data(X, Y):
 def _labels(x):
     return x[:, -1]
 
+
+def _points(x):
+    return x[:, :-1]
 
 def getmostfrequent(sequence):
     max_ = 0

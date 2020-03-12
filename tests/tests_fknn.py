@@ -11,7 +11,7 @@ class TestsFKNN(unittest.TestCase):
         X = np.arange(10).reshape(5, 2)
         Y = np.array([0, 0, 1, 1, 1]).reshape(5, 1)
         ukn = np.array([1, 2])
-        model = FKNN(2, 2)
+        model = FKNN(2, 2, 2)
         model.fit(X, Y)
         pred = model.predict(ukn)
 
