@@ -44,7 +44,7 @@ def find_neighbours(root, point, n_neigh, p):
                     dists.pop(idx)
                     neighbours[idx] = current.loc + current.lbl
             nodes, depth = _update_nodes(nodes, current, depth)
-    return neighbours
+    return np.array(neighbours)
 
 
 def _update_nodes(nodes, curr, depth):
