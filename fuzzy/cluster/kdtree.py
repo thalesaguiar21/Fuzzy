@@ -18,8 +18,8 @@ def build(points, depth=0):
     points.sort(key=itemgetter(axis))
     med = len(points) // 2
     return Node(loc=points[med][:-1], lbl=points[med][-1:],
-                left=kdtree(points[:med], depth+1),
-                right=kdtree(points[med + 1:], depth + 1))
+                left=build(points[:med], depth+1),
+                right=build(points[med + 1:], depth + 1))
 
 
 def find_neighbours(root, point, n_neigh, p):
