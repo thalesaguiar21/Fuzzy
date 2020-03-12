@@ -26,15 +26,15 @@ class FKNN:
         self._compute_mdegrees(X, Y)
 
     def predict(self, x):
-        neighbours = self.find_neighbours(x)
+        neighbours = self._find_neighbours(x)
         dists = []
         for neigh in _points(neighbours):
             dist = np.abs(x - neigh) ** (2/(self.m-1))
             dists.append(dist)
-            neighbours = self.find_neighbours(neigh)
+            neighbours = self._find_neighbours(neigh)
         return -1
 
-    def find_neighbours(self, x):
+    def _find_neighbours(self, x):
         return kdtree.find_neighbours(self._tree, x, self.k, self.p)
 
     def _compute_mdegrees(self, X, Y):
