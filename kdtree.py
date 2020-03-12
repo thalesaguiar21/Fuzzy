@@ -4,7 +4,7 @@ from collections import namedtuple
 
 import numpy as np
 
-class Node(namedtuple('Node', 'loc left right')):
+class Node(namedtuple('Node', 'loc lbl left right')):
 
     def __str__(self):
         return f'({self.left}, {self.loc}, {self.right})'
@@ -13,52 +13,63 @@ class Node(namedtuple('Node', 'loc left right')):
 def kdtree(points, depth=0):
     if len(points) == 0:
         return None
-    dim = len(points[0])
+    dim = len(points[0]) - 1 # The last axis is the label
     axis = depth % dim
-    order = np.argsort(points[:, axis])
-    points = points[order]
+    points.sort(key=itemgetter(axis))
     med = len(points) // 2
-    return Node(loc=points[med], left=kdtree(points[:med], depth+1),
+    return Node(loc=points[med][:-1], lbl=points[med][-1:],
+                left=kdtree(points[:med], depth+1),
                 right=kdtree(points[med + 1:], depth + 1))
 
 
-def find(root, point, depth=0):
-    if root.loc is None:
-        return -1
-    elif (root.loc == point).all():
-        return depth
-    elif point[depth] < root.loc[depth]:
-        return find(root.left, point, depth + 1)
-    elif point[depth] > root.loc[depth]:
-        return find(root.right, point, depth + 1)
+def find_neighbours(root, point, n_neigh, p):
+    nodes = [root]
+    neighbours = []
+    dists = []
+    depth = 0
+    dim = len(root.loc)
+    while len(nodes) > 0:
+        axis = depth % dim
+        current = nodes.pop()
+        currdist = make_dist(current.loc, point, p)
+        if len(neighbours) < n_neigh:
+            dists.append(currdist)
+            neighbours.append(current.loc + current.lbl)
+            nodes, depth = _update_nodes(nodes, current, depth)
+        elif _has_intersection(current.loc, point, axis, max(dists)):
+            for dist in dists:
+                if dist > currdist:
+                    dists.append(currdist)
+                    idx = dists.index(max(dists))
+                    dists.pop(idx)
+                    neighbours[idx] = current.loc + current.lbl
+            nodes, depth = _update_nodes(nodes, current, depth)
+    return neighbours
 
 
-def find_neighbours(root, point, k, dists=[], neigh=[], depth=0):
-    if root is None:
-        return None
-    sqrdist = ((root.loc - point) ** 2).sum()
-    if len(dists) < k:
-        dists.append(sqrdist)
-        neigh.append(root.loc)
-    else:
-        plane_dist = root.loc[depth] - point[depth]
-        if plane_dist > max(dists):
-            return None
-        for dist in dists:
-            if dist > sqrdist:
-                dists.append(sqrdist)
-                max_ = max(dists)
-                idx = dists.index(max_)
-                dists.pop(idx)
-                neigh[idx] = root.loc
-    _find_neighbours(root.left, point, k, dists, neigh, depth+1)
-    depth -= 1
-    _find_neighbours(root.right, point, k, dists, neigh, depth+1)
-    return neigh
+def _update_nodes(nodes, curr, depth):
+    if curr.right is not None:
+        nodes.append(curr.right)
+    if curr.left is not None:
+        nodes.append(curr.left)
+    return nodes, depth + 1
 
 
-point_list = np.array([[7,2], [5,4], [9,6], [4,7], [8,1], [2,3]])
-tree = kdtree(point_list)
-neighbours = _find_neighbours(tree, [6, 3], 3)
-print(neighbours)
+def _has_intersection(r, s, axis, radius):
+    return abs(r[axis] - s[axis]) < radius
+
+
+def make_dist(r, s, p):
+    ''' Sum of power differences between two points
+
+    Args:
+        r: first point
+        s: second point
+        p: exponent
+    '''
+    dist = 0
+    for i in range(len(r)):
+        dist += abs(r[i] - s[i])**p
+    return dist
+
 
