@@ -63,19 +63,6 @@ def _points(x):
     return x[:, :-1]
 
 
-def getmostfrequent(sequence):
-    max_ = 0
-    freq_label = None
-    counters = defaultdict(int)
-    for x in sequence:
-        counters[x] += 1
-    for x in counters:
-        if counters[x] > max_:
-            max_ = counters[x]
-            freq_label = x
-    return x
-
-
 def clip(x, lower, higher):
     return min(max(x, lower), higher)
 
