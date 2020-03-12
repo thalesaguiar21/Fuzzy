@@ -16,36 +16,29 @@ class FKNN:
         self.k = k
         self.p = p
         self.m = 2 if m < 2 else m
-        self._mdegrees = []
         self._tree = tree
         self._nclasses = 0
 
     def fit(self, X, Y):
         self._nclasses = len(np.unique(Y))
         self._tree = _organise_data(X, Y)
-        self._compute_mdegrees(X, Y)
 
     def predict(self, x):
         neighbours = self._find_neighbours(x)
         dists = []
-        for neigh in _points(neighbours):
-            dist = np.abs(x - neigh) ** (2/(self.m-1))
-            dists.append(dist)
-            neighbours = self._find_neighbours(neigh)
+        for neigh in neighbours:
+            mdegrees = self._compute_mdegrees(neigh)
         return -1
+
+    def _compute_mdegrees(self, point):
+        mdegrees = np.zeros(self._nclasses)
+        neighbours = self._find_neighbours(point)
+        for neigh in _labels(neighbours):
+            mdegrees[neigh] += 1
+        return self._mdegree(mdegrees, _labels(point))
 
     def _find_neighbours(self, x):
         return kdtree.find_neighbours(self._tree, x, self.k, self.p)
-
-    def _compute_mdegrees(self, X, Y):
-        n_classes, n_samples = len(np.unique(Y)), Y.shape[0]
-        self._mdegrees = np.zeros((n_samples, n_classes))
-        for i in range(n_samples):
-            neighs = kdtree.find_neighbours(self._tree, X[i], self.k, self.p)
-            cls_count = np.zeros(n_classes)
-            for lbl in _labels(neighs):
-                cls_count[lbl] += 1
-            self._mdegrees[i] = self._mdegree(cls_count, Y[i])
 
     def _mdegree(self, cls_count, cls):
         mdegree = (0.49/self.k) * cls_count
@@ -59,11 +52,16 @@ def _organise_data(X, Y):
 
 
 def _labels(x):
+    if len(x.shape) == 1:
+        return x[-1]
     return x[:, -1]
 
 
 def _points(x):
+    if len(x.shape) == 1:
+        return x[:-1]
     return x[:, :-1]
+
 
 def getmostfrequent(sequence):
     max_ = 0
@@ -76,8 +74,6 @@ def getmostfrequent(sequence):
             max_ = counters[x]
             freq_label = x
     return x
-
-
 
 
 def clip(x, lower, higher):
