@@ -6,13 +6,15 @@ from . import kdtree
 
 
 class FKNN:
-    ''' A Fuzzy K-Nearest Neighbours algorithm
+    """ A Fuzzy K-Nearest Neighbours algorithm.
 
-    Args:
-        k: the number of neighbours
-        p: the distance power fo Minkowski metric
-    '''
-    def __init__(self, k, p, m, tree=None):
+    Attributes:
+        nnghbours (int): the number of neighbours.
+        p (int): the distance power fo Minkowski metric.
+        m (int): the weight of the distances used for prediction, from 2 to
+            'inf'.
+    """
+    def __init__(self, nneighbours, p, m, tree=None):
         self.nneighbours = k
         self.p = p
         self.m = 2 if m < 2 else m
@@ -20,8 +22,23 @@ class FKNN:
         self._nclasses = 0
 
     def fit(self, X, Y):
+        """ Organise the training data
+
+        Args:
+            X (ndarray): the feature vector
+            Y (ndarray): the labels
+        """
+        try:
+            _validate_data(X, Y)
+            self._count_classes(Y)
+            self._tree = _organise_data(X, Y)
+        except ValueError as err:
+            print(err)
+
+    def _count_classes(self, Y):
         self._nclasses = len(np.unique(Y))
-        self._tree = _organise_data(X, Y)
+        if self._nclasses < 2:
+            raise ValueError('There must be at least 2 unique labels')
 
     def predict(self, x):
         neighbours = self._find_neighbours(x)
@@ -54,6 +71,14 @@ def _organise_data(X, Y):
     labeled_data = np.hstack((X, Y))
     return kdtree.build(labeled_data.tolist())
 
+def _validate_data(X, Y):
+    if X is None or Y is None:
+        raise ValueError(f'Invalid type of data {X} and {Y}')
+    if X is not None and X.shape[0] < self.nneighbours:
+        raise ValueError('Data has less points than K')
+    if X.shape[0] != Y.shape[0]:
+        raise ValueError('Insuficient number of labels')
+
 
 def _labels(x):
     if len(x.shape) == 1:
@@ -72,8 +97,7 @@ def clip(x, lower, higher):
 
 
 def minkowski(a, b, p):
-    ''' Computes the Minkowki distance between two points
-    '''
+    """ Computes the Minkowki distance between two points """
     a, b = np.array(a), np.array(b)
     if a.shape != b.shape:
         raise ValueError('Cannot compute with different array dimensions')
