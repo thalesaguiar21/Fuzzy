@@ -13,7 +13,7 @@ class FKNN:
         p: the distance power fo Minkowski metric
     '''
     def __init__(self, k, p, m, tree=None):
-        self.k = k
+        self.nneighbours = k
         self.p = p
         self.m = 2 if m < 2 else m
         self._tree = tree
@@ -42,10 +42,10 @@ class FKNN:
         return self._mdegree(mdegrees, _labels(point))
 
     def _find_neighbours(self, x):
-        return kdtree.find_neighbours(self._tree, x, self.k, self.p)
+        return kdtree.find_neighbours(self._tree, x, self.nneighbours, self.p)
 
     def _mdegree(self, cls_count, cls):
-        mdegree = (0.49/self.k) * cls_count
+        mdegree = (0.49/self.nneighbours) * cls_count
         mdegree[cls] += 0.51
         return mdegree
 
