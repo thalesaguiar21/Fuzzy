@@ -26,8 +26,8 @@ class TestsFKNN(unittest.TestCase):
         model = FKNN(2, 2, 2)
         model.fit(self.Xtrain, self.Ytrain)
         preds = model.predict(self.Xtest)
-        acc = accuracy(self.Ytest, preds)
-        print(f'Accuracy on blob was {acc}%')
+        acc = accuracy(self.Ytest, preds) * 100
+        self.assertGreater(acc, 90.0)
 
 
 
