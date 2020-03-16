@@ -6,7 +6,7 @@ from . import kdtree
 
 
 class FKNN:
-    """ A Fuzzy K-Nearest Neighbours algorithm.
+    """A Fuzzy K-Nearest Neighbours algorithm.
 
     Attributes:
         nnghbours (int): the number of neighbours.
@@ -22,7 +22,7 @@ class FKNN:
         self._nclasses = 0
 
     def fit(self, X, Y):
-        """ Organise the training data
+        """Organise the training data
 
         Args:
             X (ndarray): the feature vector
@@ -46,11 +46,18 @@ class FKNN:
             raise ValueError('There must be at least 2 unique labels')
 
     def predict(self, X):
+        """A crisp prediction from the fuzzyfied inferences """
         fuzz_predictions = self.predict_fuzz(X)
         fuzz_pred_mtx = np.array(fuzz_predictions)
         return np.argmax(fuzz_pred_mtx, axis=1)
 
     def predict_fuzz(self, X):
+        """A fuzzy prediction from given data
+
+        Returns:
+            fuzzpreds (2d-ndarray): the class membership degree of each point
+                to every class.
+        """
         if not isinstance(X[0], (list, np.ndarray)):
             X = list([X])
         predictions = []
