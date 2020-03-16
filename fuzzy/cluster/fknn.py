@@ -46,6 +46,11 @@ class FKNN:
             raise ValueError('There must be at least 2 unique labels')
 
     def predict(self, X):
+        fuzz_predictions = self.predict_fuzz(X)
+        fuzz_pred_mtx = np.array(fuzz_predictions)
+        return np.argmax(fuzz_pred_mtx, axis=1)
+
+    def predict_fuzz(self, X):
         if not isinstance(X[0], (list, np.ndarray)):
             X = list([X])
         predictions = []
