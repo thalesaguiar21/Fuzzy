@@ -98,6 +98,3 @@ def _points(x):
     return x[:, :-1]
 
 
-def clip(x, lower, higher):
-    return min(max(x, lower), higher)
-
