@@ -25,5 +25,6 @@ class TestsFKNN(unittest.TestCase):
         data = self.load_blob()
         model = FKNN(2, 2, 2)
         model.fit(self.Xtrain, self.Ytrain)
+        model.predict(self.Xtest)
 
 

@@ -46,7 +46,7 @@ class FKNN:
             raise ValueError('There must be at least 2 unique labels')
 
     def predict(self, X):
-        if not isinstance(X[0], list):
+        if not isinstance(X[0], (list, np.ndarray)):
             X = list([X])
         predictions = []
         for x in X:
