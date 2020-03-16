@@ -21,10 +21,26 @@ class TestsFKNN(unittest.TestCase):
         ntrainsamples= self.Ytrain.size
         self.Ytrain = self.Ytrain.reshape(ntrainsamples, 1)
 
-    def test_fit(self):
+    def test_accuracy(self):
         data = self.load_blob()
         model = FKNN(2, 2, 2)
         model.fit(self.Xtrain, self.Ytrain)
-        model.predict(self.Xtest)
+        preds = model.predict(self.Xtest)
+        acc = accuracy(self.Ytest, preds)
+        print(f'Accuracy on blob was {acc}%')
+
+
+
+
+
+
+
+def accuracy(reals, predictions):
+    n_hits = 0
+    for real, pred in zip(reals, predictions):
+        if int(real) == int(pred):
+            n_hits += 1
+    return n_hits/len(reals)
+
 
 
