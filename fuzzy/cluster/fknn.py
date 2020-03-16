@@ -47,8 +47,7 @@ class FKNN:
     def predict(self, X):
         """A crisp prediction from the fuzzyfied inferences """
         fuzz_predictions = self.predict_fuzz(X)
-        fuzz_pred_mtx = np.array(fuzz_predictions)
-        return np.argmax(fuzz_pred_mtx, axis=1)
+        return np.argmax(fuzz_predictions, axis=1)
 
     def predict_fuzz(self, X):
         """A fuzzy prediction from given data
@@ -59,11 +58,11 @@ class FKNN:
         """
         if not isinstance(X[0], (list, np.ndarray)):
             X = list([X])
-        predictions = []
+        fuzzpredictions = []
         for x in X:
             pred = self._predict_single(x)
-            predictions.append(pred)
-        return predictions
+            fuzzpredictions.append(pred)
+        return np.array(fuzzpredictions)
 
     def _predict_single(self, x):
         neighbours = self._find_neighbours(x)

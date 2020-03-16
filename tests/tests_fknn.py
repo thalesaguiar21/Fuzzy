@@ -11,6 +11,7 @@ FILEPATH = os.path.join(DIRNAME, 'dataset_blob.txt')
 
 class TestsFKNN(unittest.TestCase):
 
+
     def load_blob(self):
         self.dataset = np.loadtxt(FILEPATH)
         self.Xtrain = self.dataset[:350, :-1]
@@ -29,10 +30,23 @@ class TestsFKNN(unittest.TestCase):
         acc = accuracy(self.Ytest, preds) * 100
         self.assertGreater(acc, 90.0)
 
+    def test_fuzzpred_rowsum(self):
+        data = self.load_blob()
+        model = FKNN(2, 2, 2)
+        model.fit(self.Xtrain, self.Ytrain)
+        preds = model.predict_fuzz(self.Xtest)
+        rowsums = np.sum(preds, axis=1)
+        areclose = rowsums - 1.0 > -1e-4
+        self.assertTrue(areclose.all())
 
-
-
-
+    def test_fuzzpred_colsum(self):
+        data = self.load_blob()
+        model = FKNN(2, 2, 2)
+        model.fit(self.Xtrain, self.Ytrain)
+        preds = model.predict_fuzz(self.Xtest)
+        colsums = np.sum(preds, axis=0)
+        atleast_nsamples = colsums <= self.Xtest.shape[0]
+        self.assertTrue(atleast_nsamples.all())
 
 
 def accuracy(reals, predictions):
