@@ -88,8 +88,8 @@ def _organise_data(X, Y):
 
 def _labels(x):
     if len(x.shape) == 1:
-        return x[-1]
-    return x[:, -1]
+        return int(x[-1])
+    return x[:, -1].astype(np.int32)
 
 
 def _points(x):
