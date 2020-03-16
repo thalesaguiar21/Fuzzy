@@ -28,22 +28,21 @@ class FKNN:
             X (ndarray): the feature vector
             Y (ndarray): the labels
         """
-        self._validate_data(X, Y)
+        self._validate_train_data(X, Y)
         self._count_classes(Y)
         self._tree = _organise_data(X, Y)
 
-    def _validate_data(self, X, Y):
-        if X is None or Y is None:
-            raise ValueError(f'Invalid type of data {X} and {Y}')
+    def _validate_train_data(self, X, Y):
         if X.shape[0] < self.nneighbours:
-            raise ValueError('Data has less points than K')
+            raise ValueError('there must be at least {self.nneighbours} points')
         if X.shape[0] != Y.shape[0]:
-            raise ValueError('Insuficient number of labels')
+            npoints, nlabels = X.shape[0], Y.shape[0]
+            raise ValueError('not enough labels: (X){npoints}!={nlabels}(Y)')
 
     def _count_classes(self, Y):
         self._nclasses = len(np.unique(Y))
         if self._nclasses < 2:
-            raise ValueError('There must be at least 2 unique labels')
+            raise ValueError('there must be at least 2 unique labels')
 
     def predict(self, X):
         """A crisp prediction from the fuzzyfied inferences """
