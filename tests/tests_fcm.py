@@ -1,25 +1,20 @@
+import unittest
+
+import numpy as np
+from sklearn.metrics import accuracy_score
+
 from .context import fuzzy
 from fuzzy.cluster import FCM
-import unittest
-import numpy as np
-import os
-from sklearn.metrics import accuracy_score
-from sklearn.cluster import KMeans
 
-DIRNAME = os.path.dirname(__file__)
-FILEPATH = os.path.join(DIRNAME, 'dataset_blob.txt')
+from . import Xtrain, Xtest, Ytrain, Ytest
+
 
 class TestsFCM(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestsFCM, self).__init__(*args, **kwargs)
-        dataset = np.loadtxt(FILEPATH)
-        self.Xtrain = dataset[:350, :-1]
-        self.Xtest = dataset[350:, :-1]
-        self.Ytrain = dataset[:350, -1]
-        self.Ytest = dataset[350:, -1]
         self.mfcm = FCM(nclusters=3, fuzzyness=2)
-        self.mfcm.fit(self.Xtrain, 0.2)
+        self.mfcm.fit(Xtrain, 0.2)
 
     def tearDown(self):
         self.mfcm.nclusters = 3
@@ -31,11 +26,11 @@ class TestsFCM(unittest.TestCase):
 
     def set_fit_raising(self, nclusters, m, error):
         self.setFCM(nclusters, m)
-        self.assertRaises(error, self.mfcm.fit, self.Xtrain, 0.2)
+        self.assertRaises(error, self.mfcm.fit, Xtrain, 0.2)
 
     def set_fit_not_raising(self, nclusters, m):
         self.setFCM(nclusters, m)
-        self.assertNotRaise(self.mfcm.fit, self.Xtrain, 0.2)
+        self.assertNotRaise(self.mfcm.fit, Xtrain, 0.2)
 
     def test_cluster_fuzzyness_out(self):
         self.set_fit_raising(3, -2, ValueError)
@@ -103,7 +98,7 @@ class TestsFCM(unittest.TestCase):
 
     def test_predfuzz_testset(self):
         try:
-            self.mfcm.predict_fuzz(self.Xtest)
+            self.mfcm.predict_fuzz(Xtest)
         except:
             self.fail()
 
@@ -113,13 +108,13 @@ class TestsFCM(unittest.TestCase):
 
     def test_predict_testset(self):
         try:
-            self.mfcm.predict(self.Xtest)
+            self.mfcm.predict(Xtest)
         except:
             self.fail()
 
     def test_accuracy(self):
-        preds = self.mfcm.predict(self.Xtrain)
-        accuracy = accuracy_score(preds, self.Ytrain)
+        preds = self.mfcm.predict(Xtrain)
+        accuracy = accuracy_score(preds, Ytrain)
         self.assertGreaterEqual(accuracy, 0.0)
         self.assertLess(accuracy, 1.0)
 
