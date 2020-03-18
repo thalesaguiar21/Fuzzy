@@ -78,13 +78,10 @@ class FCM:
             return []
         return self._update_partitions(samples)
 
-    def set_params(self, **kwargs):
-        if 'nclusters' in kwargs:
-            self.nclusters = kwargs['nclusters']
-        if 'fuzzyness' in kwargs:
-            self.m = kwargs['fuzzyness']
-        if 'tol' in kwargs:
-            self.tol = kwargs['tol']
+    def set_params(self, **params):
+        self.nclusters = params.get('nclusters', self.nclusters)
+        self.m = params.get('fuzzyness', self.m)
+        self.tol = params.get('tol', self.tol)
 
 
 def _validate(nclusters, fuzzyness):

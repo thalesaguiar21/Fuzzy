@@ -90,6 +90,11 @@ class FKNN:
         mdegree[cls] += 0.51
         return mdegree
 
+    def set_params(self, **params):
+        self.nneighbours = params.get('nneighbours', self.nneighbours)
+        self.m = params.get('m', self.m)
+        self.p = params.get('p', self.p)
+
 
 def _organise_data(X, Y):
     labeled_data = np.hstack((X, Y))
