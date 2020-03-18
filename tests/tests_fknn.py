@@ -38,6 +38,27 @@ class TestsPredict(unittest.TestCase):
         self.assertRaises(ValueError, self.model.predict, Xtest)
 
 
+class TestsFit(unittest.TestCase):
+
+    def setUp(self):
+        self.model = FKNN(2, 2, 2)
+
+    def test_invalid_properties(self):
+        tset = [(-1,2,2), (0,2,2), (2,4,2), (2,-1,2), (2,2,-1), (2,2,1)]
+        for params in tset:
+            self.model = FKNN(*params)
+            self.assertRaises(ValueError, self.model.fit, Xtrain, Ytrain)
+
+    def test_valid_properties(self):
+        self.model = FKNN(3, 3, 3)
+        self.model.fit(Xtrain, Ytrain)
+
+    def test_single_class(self):
+        nlabels = Ytrain.shape[0]
+        singlelabels = np.ones(nlabels, dtype=np.int32).reshape(nlabels, 1)
+        self.assertRaises(ValueError, self.model.fit, Xtrain, singlelabels)
+
+
 def accuracy(reals, predictions):
     n_hits = 0
     for real, pred in zip(reals, predictions):
