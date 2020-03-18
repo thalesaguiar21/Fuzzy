@@ -3,6 +3,7 @@ from collections import defaultdict
 import numpy as np
 
 from . import kdtree
+from ..logic import mem_funcs as membership
 
 
 class FKNN:
@@ -73,15 +74,10 @@ class FKNN:
         neighbours = self._find_neighbours(point)
         for neigh in _labels(neighbours):
             mdegrees[neigh] += 1
-        return self._mdegree(mdegrees, _labels(point))
+        return membership.neighbours(self.nneighbours, mdegrees, _labels(point))
 
     def _find_neighbours(self, x):
         return kdtree.find_neighbours(self._tree, x, self.nneighbours, self.p)
-
-    def _mdegree(self, cls_count, cls):
-        mdegree = (0.49/self.nneighbours) * cls_count
-        mdegree[cls] += 0.51
-        return mdegree
 
     def set_params(self, **params):
         self.nneighbours = params.get('nneighbours', self.nneighbours)
