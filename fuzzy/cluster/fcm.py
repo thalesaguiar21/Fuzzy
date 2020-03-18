@@ -17,11 +17,13 @@ class FCM:
         _validate(self.nclusters, self.m)
         self._initialise_parts_centre_points(X)
         error = np.inf
-        while error > self.tol:
+        cur_iter = 1
+        while not self.has_converged(error, cur_iter):
             self._update_centroids(X)
             new_partitions = self._update_partitions(X)
             error = np.linalg.norm(new_partitions - self.partitions)
             self.partitions = new_partitions
+            cur_iter += 1
         return self.partitions, self.centroids
 
     def _initialise_parts_centre_points(self, data):
@@ -30,24 +32,39 @@ class FCM:
         self.centroids = np.zeros((self.nclusters, data.shape[1]))
 
     def _init_partitions(self):
-        partitions = np.zeros((self.npoints, self.nclusters))
-        for part in partitions:
-            clust = np.random.randint(0, self.nclusters)
-            part[clust] = 1.0
+        partitions = np.random.rand(self.npoints, self.nclusters)
+        for i in range(self.npoints):
+            partitions[i] = partitions[i] / partitions[i].sum()
         return partitions
 
+    def has_converged(self, error, cur_iter):
+        return error <= self.tol
+
     def _update_centroids(self, data):
-       for j in range(self.nclusters):
-           denom = np.array([w ** self.m for w in self.partitions[:, j]])
-           num = np.array([dt * wm for dt, wm in zip(data, denom)])
-           self.centroids[j] = num.sum(axis=0) / denom.sum()
+        fuzzied_parts = self.partitions ** self.m
+        dt_sum = fuzzied_parts.T @ data
+        self.centroids = dt_sum / fuzzied_parts.sum()
 
     def _update_partitions(self, data):
-        U = np.zeros((self.npoints, self.nclusters))
-        for i in range(self.npoints):
+        dists = self._make_dists(data)
+        nonzero_dist = np.fmax(dists, np.finfo(np.float64).eps)
+        return self._make_memdegree(nonzero_dist)
+
+    def _make_dists(self, data):
+        dists = np.zeros((data.shape[0], self.nclusters))
+        for i in range(data.shape[0]):
             for j in range(self.nclusters):
-                U[i, j] = self._make_memdegree(data[i], j)
-        return U
+                dists[i, j] = np.linalg.norm(data[i] - self.centroids[j])
+        return dists
+
+    def _make_memdegree(self, dists):
+        mem_degrees = np.zeros((dists.shape[0], self.nclusters))
+        for i in range(dists.shape[0]):
+            for j in range(self.nclusters):
+                xi_dist = dists[i, j] / dists[i, :]
+                norm_xi_dist = xi_dist ** (2.0 / (self.m-1.0))
+                mem_degrees[i, j] = 1.0 / norm_xi_dist.sum()
+        return mem_degrees
 
     def predict(self, samples):
         """ Associate and classify a sample as the class with the highest member
@@ -59,35 +76,12 @@ class FCM:
         """ Compute the membership degree of a sample to every cluster """
         if samples is None or len(samples) == 0:
             return []
-        mem_degrees = np.zeros((samples.shape[0], self.nclusters))
-        for i in range(samples.shape[0]):
-            for j in range(self.nclusters):
-                mem_degrees[i, j] = self._make_memdegree(samples[i], j)
-        return mem_degrees
+        return self._update_partitions(samples)
 
-    def _make_memdegree(self, sample, j):
-        num = np.linalg.norm(sample - self.centroids[j])
-        dists = [np.linalg.norm(sample - ck) for ck in self.centroids]
-        norm_dists = np.array(self._normalise_dists(num, dists))
-        mem_degree = 1.0 / norm_dists.sum()
-        return mem_degree
-
-    def _normalise_dists(self, num, dists):
-        normalised_dists = []
-        for dist in dists:
-            if dist == 0.0:
-                normalised_dists.append(0.0)
-            else:
-                normalised_dists.append((num/dist) ** (2.0 / (self.m-1.0)))
-        return normalised_dists
-
-    def set_params(self, **kwargs):
-        if 'nclusters' in kwargs:
-            self.nclusters = kwargs['nclusters']
-        if 'fuzzyness' in kwargs:
-            self.m = kwargs['fuzzyness']
-        if 'tol' in kwargs:
-            self.tol = kwargs['tol']
+    def set_params(self, **params):
+        self.nclusters = params.get('nclusters', self.nclusters)
+        self.m = params.get('fuzzyness', self.m)
+        self.tol = params.get('tol', self.tol)
 
 
 def _validate(nclusters, fuzzyness):

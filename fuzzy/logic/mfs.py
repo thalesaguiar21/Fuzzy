@@ -134,3 +134,10 @@ class PiecewiseLogit(MembershipFunction):
 
     def coefs(self, value, weight):
         return np.array([self.slope, self.indep, 0.0])
+
+
+def neighbours(nneighbours, label_count, curr):
+    mdegrees = (0.49/nneighbours) * label_count
+    mdegrees[curr] += 0.51
+    return mdegrees
+
