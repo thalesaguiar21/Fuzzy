@@ -18,7 +18,7 @@ class FKNN:
     def __init__(self, nneighbours, p, m, tree=None):
         self.nneighbours = nneighbours
         self.p = p
-        self.m = 2 if m < 2 else m
+        self.m = m
         self._tree = tree
         self._nclasses = 0
 
@@ -29,7 +29,8 @@ class FKNN:
             X (ndarray): the feature vector
             Y (ndarray): the labels
         """
-        _validate_train_data(X, Y, self.nneighbours)
+        _check_properties(self)
+        _check_train_data(X, Y, self.nneighbours)
         self._count_classes(Y)
         self._tree = _organise_data(X, Y)
 
@@ -38,32 +39,30 @@ class FKNN:
         if self._nclasses < 2:
             raise ValueError('there must be at least 2 unique labels')
 
-    def predict(self, X):
+    def predict(self, testdata):
         """A crisp prediction from the fuzzyfied inferences """
-        fuzz_predictions = self.predict_fuzz(X)
+        fuzz_predictions = self.predict_fuzz(testdata)
         return np.argmax(fuzz_predictions, axis=1)
 
-    def predict_fuzz(self, X):
+    def predict_fuzz(self, testdata):
         """A fuzzy prediction from given data
 
         Returns:
             fuzzpreds (2d-ndarray): the class membership degree of each point
                 to every class.
         """
-        if not isinstance(X[0], (list, np.ndarray)):
-            X = list([X])
         fuzzpredictions = []
-        for x in X:
-            pred = self._predict_single(x)
+        for point in testdata:
+            pred = self._predict_single(point)
             fuzzpredictions.append(pred)
         return np.array(fuzzpredictions)
 
-    def _predict_single(self, x):
-        neighbours = self._find_neighbours(x)
+    def _predict_single(self, point):
+        neighbours = self._find_neighbours(point)
         mdegrees = []
         dists = []
         for neigh in neighbours:
-            dist = np.abs(x - _points(neigh)) ** (self.p/(self.m-1))
+            dist = np.abs(point - _points(neigh)) ** (self.p/(self.m-1))
             dists.append(dist.sum())
             mdegrees.append(self._compute_mdegrees(neigh))
         pred = np.dot(dists, mdegrees) / sum(dists)
@@ -77,6 +76,8 @@ class FKNN:
         return mfs.neighbours(self.nneighbours, mdegrees, _labels(point))
 
     def _find_neighbours(self, x):
+        if not self._tree:
+            raise ValueError('model is not trained')
         return kdtree.find_neighbours(self._tree, x, self.nneighbours, self.p)
 
     def set_params(self, **params):
@@ -90,15 +91,18 @@ def _organise_data(X, Y):
     return kdtree.build(labeled_data.tolist())
 
 
-def _validate_train_data(X, Y, nneighbours):
+def _check_properties(fknn):
+    if fknn.m < 2:
+        raise ValueError('distance weight \'m\' >= 2')
+    if fknn.p not in [1, 2, 3]:
+        raise ValueError('distance metric must be in [1, 2, 3]')
+    if fknn.nneighbours < 1:
+        raise ValueError('number of neighbours must be at least 1')
+
+
+def _check_train_data(X, Y, nneighbours):
     if X.shape[0] < nneighbours:
         raise ValueError('there must be at least {nneighbours} points')
-    _check_all_labeled(X, Y)
-
-
-def _validate_test_data(X, Y, dim):
-    if X is not None and X.shape[1] < dim:
-        raise ValueError('Test data has {X.shape[1]} features, expected {dim}')
     _check_all_labeled(X, Y)
 
 
