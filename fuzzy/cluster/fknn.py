@@ -90,18 +90,6 @@ def _organise_data(X, Y):
     return kdtree.build(labeled_data.tolist())
 
 
-def _labels(x):
-    if len(x.shape) == 1:
-        return int(x[-1])
-    return x[:, -1].astype(np.int32)
-
-
-def _points(x):
-    if len(x.shape) == 1:
-        return x[:-1]
-    return x[:, :-1]
-
-
 def _validate_train_data(X, Y, nneighbours):
     if X.shape[0] < nneighbours:
         raise ValueError('there must be at least {nneighbours} points')
@@ -118,4 +106,16 @@ def _check_all_labeled(X, Y):
     notnone = X is not None and Y is not None
     if notnone and X.shape[0] != Y.shape[0]:
         raise ValueError('different number of points and labels')
+
+
+def _labels(x):
+    if len(x.shape) == 1:
+        return int(x[-1])
+    return x[:, -1].astype(np.int32)
+
+
+def _points(x):
+    if len(x.shape) == 1:
+        return x[:-1]
+    return x[:, :-1]
 
