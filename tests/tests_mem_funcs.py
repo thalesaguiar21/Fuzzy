@@ -1,12 +1,12 @@
 from .context import fuzzy
-import fuzzy.logic.mem_funcs as memfuncs
+from fuzzy.logic import mfs
 import unittest
 
 
 class TestBellTwo(unittest.TestCase):
 
     def setUp(self):
-        self.bellTwo = memfuncs.BellTwo()
+        self.bellTwo = mfs.BellTwo()
         self.value = 4
         self.a = 3
         self.b = 2
@@ -75,7 +75,7 @@ class TestBellTwo(unittest.TestCase):
 class TestBellThree(unittest.TestCase):
 
     def setUp(self):
-        self.bellThree = memfuncs.BellThree()
+        self.bellThree = mfs.BellThree()
         self.value = 4
         self.a = 3
         self.b = 2
@@ -135,7 +135,7 @@ class TestBellThree(unittest.TestCase):
 class TestPiecewiseLogit(unittest.TestCase):
 
     def setUp(self):
-        self.plogit = memfuncs.PiecewiseLogit()
+        self.plogit = mfs.PiecewiseLogit()
         self.params = [2, 10]
         self.value = 3
 
