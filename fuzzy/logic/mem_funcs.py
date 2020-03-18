@@ -134,3 +134,4 @@ class PiecewiseLogit(MembershipFunction):
 
     def coefs(self, value, weight):
         return np.array([self.slope, self.indep, 0.0])
+

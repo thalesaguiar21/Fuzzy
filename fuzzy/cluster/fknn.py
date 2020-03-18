@@ -28,16 +28,9 @@ class FKNN:
             X (ndarray): the feature vector
             Y (ndarray): the labels
         """
-        self._validate_train_data(X, Y)
+        _validate_train_data(X, Y, self.nneighbours)
         self._count_classes(Y)
         self._tree = _organise_data(X, Y)
-
-    def _validate_train_data(self, X, Y):
-        if X.shape[0] < self.nneighbours:
-            raise ValueError('there must be at least {self.nneighbours} points')
-        if X.shape[0] != Y.shape[0]:
-            npoints, nlabels = X.shape[0], Y.shape[0]
-            raise ValueError('not enough labels: (X){npoints}!={nlabels}(Y)')
 
     def _count_classes(self, Y):
         self._nclasses = len(np.unique(Y))
@@ -112,4 +105,21 @@ def _points(x):
         return x[:-1]
     return x[:, :-1]
 
+
+def _validate_train_data(X, Y, nneighbours):
+    if X.shape[0] < nneighbours:
+        raise ValueError('there must be at least {nneighbours} points')
+    _check_all_labeled(X, Y)
+
+
+def _validate_test_data(X, Y, dim):
+    if X is not None and X.shape[1] < dim:
+        raise ValueError('Test data has {X.shape[1]} features, expected {dim}')
+    _check_all_labeled(X, Y)
+
+
+def _check_all_labeled(X, Y):
+    notnone = X is not None and Y is not None
+    if notnone and X.shape[0] != Y.shape[0]:
+        raise ValueError('different number of points and labels')
 
