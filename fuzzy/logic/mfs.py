@@ -4,6 +4,23 @@ import numpy as np
 from .. import lse
 
 
+def genbell(x, params):
+    """ A generalised fuzzy bell function
+
+    Args:
+        x: the input
+        params: [a,b,c]
+
+    Note:
+        a: the width of the function
+        b: the plato spam
+        c: the center
+    """
+    a, b, c = params
+    denom = 1 + (abs((x-c)/a) ** (2*b))
+    return 1 / denom
+
+
 class MembershipFunction(ABC):
     """ This class represents an interface for Membership Functions. Any
     function class must have both methods to calculate the membership
