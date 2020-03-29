@@ -14,6 +14,7 @@ X_CRISP, Y = make_blobs()
 X = normalize(X_CRISP, axis=1, norm='l1')
 N_POINTS, N_INPUTS = X.shape
 
+# Set constants
 MAX_EPOCH = 10
 FSET_SIZE = 10
 STEP_SIZE = 1e-10
@@ -29,6 +30,18 @@ print(f"Max epochs: {MAX_EPOCH}\t\t"
       f"Parameters: {N_PARAMS}\t\t"
       f"Step: {STEP_SIZE}\n")
 
+
+def build_mfs(inputs, nmfs=2):
+    for mean in _find_means(inputs, nmfs):
+        breakpoint()
+
+
+def _find_means(inputs, nmfs):
+    mins = np.min(inputs, axis=0)
+    maxs = np.max(inputs, axis=0)
+    inp_spaces = np.abs(mins) + np.abs(maxs)
+    stepsizes = inp_spaces / (nmfs-1)
+    splits = np.arange(nmfs)
 
 
 def half_forward_pass(x):
@@ -48,19 +61,19 @@ def half_forward_pass(x):
     return l1, l2, l3
 
 
-premise_mean = np.random.normal(0, 1.0, (N_MFS, 1))
+premise_mean = build_mfs(X, FSET_SIZE)
 premise_std = np.ones((N_MFS, 1))
 premise = np.hstack((premise_mean, premise_std))
 sysmat = []
 
 print('\nFinding consequent parameters...')
 for x in X:
-    __, __, l3 = half_forward_pass(x)
-    weights = np.repeat(l3, N_INPUTS + 1)
-    x_ = np.append(x, 1.0)
-    aux = np.tile(x_, N_POINTS)
-    breakpoint()
-    sysmat.append(weights * aux)
+    __, __, weights = half_forward_pass(x)
+    weightcol = weights.reshape((N_RULES, 1))
+    x_ = np.append(x, 1.0).reshape((1, N_INPUTS + 1))
+    sys_products = weightcol @ x_
+    sysline = sys_products.reshape(-1)
+    sysmat.append(sysline)
 sysmat = np.array(sysmat)
 lse_result = lse.Matricial().solve(sysmat, Y)
 consequents = np.reshape(lse_result, (N_POINTS, N_INPUTS + 1))
@@ -87,9 +100,10 @@ while epoch < MAX_EPOCH and not converged:
         i = 0
         for rule in product(*mfids):
             for mfid in rule:
-                mfderivs[mfid] *= fi[i] * o2[i] / o1[mfid]
+                mfderivs[mfid] += o2[i] / o1[mfid]
             i += 1
         do2_do1 = np.array(list(mfderivs.values()))
+        do3_do2 = do2_do1 * fi
 
         xpropagated = np.repeat(x, FSET_SIZE) 
         expderiv_c = (xpropagated-premise[:, 0]) / premise[:, 1]**2
