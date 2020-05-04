@@ -17,8 +17,8 @@ def genbell(x, params):
         c: the center
     """
     a, b, c = params
-    denom = 1 + (abs((x-c)/a) ** (2*b))
-    return 1 / denom
+    denom =  abs((x-c)/a) ** (2*b)
+    return 1 / (1+denom)
 
 
 class MembershipFunction(ABC):
