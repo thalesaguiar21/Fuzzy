@@ -87,7 +87,8 @@ class FKNN:
 
 
 def _organise_data(X, Y):
-    labeled_data = np.hstack((X, Y))
+    nrows, fdim = X.shape
+    labeled_data = np.hstack((X, Y.reshape((nrows, 1))))
     return kdtree.build(labeled_data.tolist())
 
 
