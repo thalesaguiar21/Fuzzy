@@ -31,7 +31,7 @@ def find_neighbours(root, point, n_neigh, p):
     while len(nodes) > 0:
         axis = depth % dim
         current = nodes.pop()
-        currdist = make_dist(current.loc, point, p)
+        currdist = calc_dist(current.loc, point, p)
         if len(neighbours) < n_neigh:
             dists.append(currdist)
             neighbours.append(current.loc + current.lbl)
@@ -59,7 +59,7 @@ def _has_intersection(r, s, axis, radius):
     return abs(r[axis] - s[axis]) < radius
 
 
-def make_dist(r, s, p):
+def calc_dist(r, s, p):
     ''' Sum of power differences between two points
 
     Args:
