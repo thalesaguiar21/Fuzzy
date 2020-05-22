@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 
 from .context import fuzzy
-from fuzzy.cluster import FCM
+from fuzzy.cluster import fcm
 
 from . import Xtrain, Xtest, Ytrain, Ytest
 
@@ -13,7 +13,7 @@ class TestsFCM(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestsFCM, self).__init__(*args, **kwargs)
-        self.mfcm = FCM(nclusters=3, fuzzyness=2)
+        self.mfcm = fcm.FCM(nclusters=3, fuzzyness=2)
         self.mfcm.fit(Xtrain, 0.2)
 
     def tearDown(self):
