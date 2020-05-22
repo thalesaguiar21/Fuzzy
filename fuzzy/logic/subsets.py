@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def build_genmf(inputs, nmfs=2):
+def build_genbell(inputs, nmfs=2):
     """ Builds a fuzzy set of generalised bell functions
     
     Args:
