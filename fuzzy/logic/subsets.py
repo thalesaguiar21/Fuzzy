@@ -11,6 +11,9 @@ def build_genmf(inputs, nmfs=2):
     feat_spams, mins = _find_feat_spam(inputs)
     means = _find_means(feat_spams, mins, nmfs)
     mfspam = np.repeat(feat_spams, nmfs)
+    if np.any(mfspam == 0):
+        raise ValueError("Can't create a feature MFs for feature space of 0"
+                         "width! Please, check your data")
     plato = np.ones(means.shape)
     mfparams = np.array([plato, mfspam, means])
     return mfparams.T
