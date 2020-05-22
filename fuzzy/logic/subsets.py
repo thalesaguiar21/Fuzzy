@@ -15,7 +15,7 @@ def build_genmf(inputs, nmfs=2):
         raise ValueError("Can't create a feature MFs for feature space of 0"
                          "width! Please, check your data")
     plato = np.ones(means.shape)
-    mfparams = np.array([plato, mfspam, means])
+    mfparams = np.array([mfspam, plato, means])
     return mfparams.T
 
 
