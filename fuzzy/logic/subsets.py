@@ -15,7 +15,7 @@ def build_genbell(inputs, nmfs=2):
         raise ValueError("Can't create a feature MFs for feature space of 0"
                          "width! Please, check your data")
     plato = np.ones(means.shape)
-    mfparams = np.array([mfspam, plato, means])
+    mfparams = np.array([2*mfspam, plato, means])
     return mfparams.T
 
 

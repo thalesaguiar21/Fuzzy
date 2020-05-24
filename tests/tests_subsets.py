@@ -23,7 +23,7 @@ class TestsGenbell(unittest.TestCase):
         fset = subsets.build_genbell(inputs, 3)
         widths = fset[:, 0]
         msg = f'Unexpected feature space {widths} != 6'
-        self.assertTrue(all(widths == np.ones(9) * 6), msg)
+        self.assertTrue(all(widths == np.ones(9) * 12), msg)
 
     def test_platos(self):
         inputs = np.arange(9).reshape(3, 3)
