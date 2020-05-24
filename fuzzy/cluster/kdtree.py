@@ -4,13 +4,18 @@ from collections import namedtuple
 
 import numpy as np
 
+
 class Node(namedtuple('Node', 'loc lbl left right')):
 
     def __str__(self):
         return f'({self.left}, {self.loc}, {self.right})'
 
 
-def build(points, depth=0):
+def build(points):
+    return _build(points, 0)
+
+
+def _build(points, depth=0):
     if len(points) == 0:
         return None
     dim = len(points[0]) - 1 # The last axis is the label
@@ -18,8 +23,8 @@ def build(points, depth=0):
     points.sort(key=itemgetter(axis))
     med = len(points) // 2
     return Node(loc=points[med][:-1], lbl=points[med][-1:],
-                left=build(points[:med], depth+1),
-                right=build(points[med + 1:], depth + 1))
+                left=_build(points[:med], depth+1),
+                right=_build(points[med + 1:], depth + 1))
 
 
 def find_neighbours(root, point, n_neigh, p):
