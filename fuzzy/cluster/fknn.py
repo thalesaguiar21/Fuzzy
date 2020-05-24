@@ -70,7 +70,7 @@ class FKNN:
 
     def _compute_mdegrees(self, point):
         mdegrees = np.zeros(self._nclasses)
-        neighbours = self._find_neighbours(point)
+        neighbours = self._find_neighbours(point[:-1])
         for neigh in _labels(neighbours):
             mdegrees[neigh] += 1
         return mfs.neighbours(self.nneighbours, mdegrees, _labels(point))
