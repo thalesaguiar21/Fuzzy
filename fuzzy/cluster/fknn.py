@@ -21,6 +21,7 @@ class FKNN:
         self.m = m
         self._tree = tree
         self._nclasses = 0
+        self._memberships = []
 
     def fit(self, X, Y):
         """Organise the training data
@@ -32,7 +33,14 @@ class FKNN:
         _check_properties(self)
         _check_train_data(X, Y, self.nneighbours)
         self._count_classes(Y)
+        self._build_membership_matrix(Y)
         self._tree = _organise_data(X, Y)
+
+    def _build_membership_matrix(self, Y):
+        self._nclasses = len(np.unique(Y))
+        self._memberships = np.zeros((self._nclasses, Y.size))
+        for i, y in enumerate(Y[:, 0].astype(np.int32)):
+            self._memberships[y, i] = 1
 
     def _count_classes(self, Y):
         self._nclasses = len(np.unique(Y))
@@ -59,21 +67,13 @@ class FKNN:
 
     def _predict_single(self, point):
         neighbours = self._find_neighbours(point)
-        mdegrees = []
-        dists = []
-        for neigh in neighbours:
-            dist = np.abs(point - _points(neigh)) ** (self.p/(self.m-1))
-            dists.append(dist.sum())
-            mdegrees.append(self._compute_mdegrees(neigh))
-        pred = np.dot(dists, mdegrees) / sum(dists)
+        neigh_vecs, neigh_idx = neighbours[:, :-1], neighbours[:, -1]
+        sqr_dists = np.sum((-neigh_vecs + point) ** 2, axis=1)
+        dists = np.sqrt(sqr_dists)
+        inv_dist = 1 / dists ** (self.p/(self.m-1))
+        w_dists = self._memberships[:, neigh_idx.astype(np.int32)] @ inv_dist
+        pred = w_dists / inv_dist.sum()
         return pred
-
-    def _compute_mdegrees(self, point):
-        mdegrees = np.zeros(self._nclasses)
-        neighbours = self._find_neighbours(point[:-1])
-        for neigh in _labels(neighbours):
-            mdegrees[neigh] += 1
-        return mfs.neighbours(self.nneighbours, mdegrees, _labels(point))
 
     def _find_neighbours(self, x):
         if not self._tree:
@@ -88,7 +88,8 @@ class FKNN:
 
 def _organise_data(X, Y):
     nrows, fdim = X.shape
-    labeled_data = np.hstack((X, Y.reshape((nrows, 1))))
+    indexes = np.arange(X.shape[0]).reshape(X.shape[0], 1)
+    labeled_data = np.hstack((X, indexes))
     return kdtree.build(labeled_data.tolist())
 
 
