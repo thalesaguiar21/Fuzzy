@@ -10,9 +10,9 @@ def genbell(x, a, b, c):
         b: plato spam
         c: center
     """
-    if a == 0:
+    if 0 in a:
         raise ValueError("Function spam must be greater than 0")
-    denom =  abs((x-c)/a) ** (2*b)
+    denom =  np.abs((x-c)/a) ** (2*b)
     return 1 / (1+denom)
 
 
