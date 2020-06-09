@@ -35,7 +35,8 @@ class FKNN:
         _check_properties(self)
         _check_train_data(X, Y, self.nneighbours)
         self._count_classes(Y)
-        self._memberships = _membership_factory(init_strat, X, Y, self.p)
+        self._memberships = _membership_factory(init_strat, X, Y, self.p,
+                                                self.nneighbours)
         self._tree = _organise_data(X, Y)
 
     def _count_classes(self, Y):
@@ -84,7 +85,7 @@ class FKNN:
 
 def _organise_data(X, Y):
     nrows, fdim = X.shape
-    indexes = np.arange(X.shape[0]).reshape(X.shape[0], 1)
+    indexes = np.arange(X.shape[0], dtype=np.int32).reshape(X.shape[0], 1)
     labeled_data = np.hstack((X, indexes))
     return kdtree.build(labeled_data.tolist())
 
@@ -110,11 +111,13 @@ def _check_all_labeled(X, Y):
         raise ValueError('different number of points and labels')
 
 
-def _membership_factory(strat, X, Y, p):
+def _membership_factory(strat, X, Y, p, k):
     if strat == 'complete':
         return _build_mdegs_complete(Y)
     elif strat == 'means':
         return _build_mdegs_kmeans(X, Y, p)
+    elif strat == 'knn':
+        return _build_mdegs_with_neighbours(X, Y, p, k)
     else:
         raise ValueError(f"Invalid strategy {strat}: use '[complete, means]'")
 
@@ -122,7 +125,7 @@ def _membership_factory(strat, X, Y, p):
 def _build_mdegs_complete(Y):
     nclasses = len(np.unique(Y))
     memberships = np.zeros((nclasses, Y.size))
-    for j, y in enumerate(Y[:, 0].astype(np.int32)):
+    for j, y in enumerate(Y):
         memberships[y, j] = 1
     return memberships
 
@@ -132,7 +135,7 @@ def _build_mdegs_kmeans(X, Y, p):
 
     centres = []
     for cls in classes:
-        idxs, __ = np.where(Y == cls)
+        idxs = np.where(Y == cls)
         centres.append(np.mean(X[idxs], axis=0))
     centres = np.array(centres)
 
@@ -142,4 +145,21 @@ def _build_mdegs_kmeans(X, Y, p):
         inv_dists = 1 / (pdist ** (1/p) + 1e-10)
         memberships[:, j] = inv_dists / inv_dists.sum()
     return memberships
+
+def _build_mdegs_with_neighbours(X, Y, p, k):
+    tree = _organise_data(X, Y)
+    classes = np.unique(Y)
+    memberships = np.zeros((len(classes), Y.size))
+    for j, x in enumerate(X):
+        neighbours = kdtree.find_neighbours(tree, x, p, k)
+        neigh_vec = neighbours[:, :-1]
+        neigh_idx = neighbours[:, -1].astype(np.int32)
+        for y in Y[neigh_idx]:
+            memberships[y, j] += 1
+        memberships[:, j]  = (memberships[:, j] / k) * 0.49
+        memberships[Y[j], j] += 0.51
+    return memberships
+
+
+
 

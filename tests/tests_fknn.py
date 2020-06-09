@@ -8,7 +8,8 @@ from . import Xtrain, Xtest, Ytrain, Ytest
 
 
 _MODEL = FKNN(2, 2, 2)
-_MODEL.fit(Xtrain, Ytrain)
+Ytrain_ = Ytrain.reshape(-1).astype(np.int32)
+_MODEL.fit(Xtrain, Ytrain_)
 
 
 class TestsPredict(unittest.TestCase):
@@ -23,7 +24,14 @@ class TestsPredict(unittest.TestCase):
 
     def test_prediction_with_mean_mdegs(self):
         model = FKNN(2, 2, 2)
-        model.fit(Xtrain, Ytrain, init_strat='means')
+        model.fit(Xtrain, Ytrain_, init_strat='means')
+        preds = model.predict(Xtest)
+        acc = accuracy(Ytest, preds) * 100
+        self.assertGreater(acc, 90.0)
+
+    def test_prediction_with_knn_mdegs(self):
+        model = FKNN(2, 2, 2)
+        model.fit(Xtrain, Ytrain_, init_strat='knn')
         preds = model.predict(Xtest)
         acc = accuracy(Ytest, preds) * 100
         self.assertGreater(acc, 90.0)
@@ -36,7 +44,15 @@ class TestsPredict(unittest.TestCase):
 
     def test_fuzzpred_rowsum_with_mean_mdges(self):
         model = FKNN(2, 2, 2)
-        model.fit(Xtrain, Ytrain, init_strat='means')
+        model.fit(Xtrain, Ytrain_, init_strat='means')
+        preds = model.predict_fuzz(Xtest)
+        rowsums = np.sum(preds, axis=1)
+        areclose = abs(rowsums - 1) < 1e-4
+        self.assertTrue(areclose.all())
+
+    def test_fuzzpred_rowsum_with_knn_mdegs(self):
+        model = FKNN(2, 2, 2)
+        model.fit(Xtrain, Ytrain_, init_strat='knn')
         preds = model.predict_fuzz(Xtest)
         rowsums = np.sum(preds, axis=1)
         areclose = abs(rowsums - 1) < 1e-4
@@ -50,7 +66,7 @@ class TestsPredict(unittest.TestCase):
 
     def test_fuzzpred_colsum_with_mean_mdeg(self):
         model = FKNN(2, 2, 2)
-        model.fit(Xtrain, Ytrain, init_strat='means')
+        model.fit(Xtrain, Ytrain_, init_strat='means')
         preds = model.predict(Xtest)
         colsums = np.sum(preds, axis=0)
         atleast_nsamples = colsums <= Xtest.shape[0]
@@ -70,11 +86,11 @@ class TestsFit(unittest.TestCase):
         tset = [(-1,2,2), (0,2,2), (2,4,2), (2,-1,2), (2,2,-1), (2,2,1)]
         for params in tset:
             self.model = FKNN(*params)
-            self.assertRaises(ValueError, self.model.fit, Xtrain, Ytrain)
+            self.assertRaises(ValueError, self.model.fit, Xtrain, Ytrain_)
 
     def test_valid_properties(self):
         self.model = FKNN(3, 3, 3)
-        self.model.fit(Xtrain, Ytrain)
+        self.model.fit(Xtrain, Ytrain_)
 
     def test_single_class(self):
         nlabels = Ytrain.shape[0]
@@ -85,18 +101,18 @@ class TestsFit(unittest.TestCase):
         metrics = [0, -1, 4, 1.5, 0.1, 1.1]
         with self.assertRaises(ValueError, msg='Fit with invalid similarity'):
             for metric in metrics:
-                FKNN(2, metric, 2).fit(Xtrain, Ytrain)
+                FKNN(2, metric, 2).fit(Xtrain, Ytrain_)
 
     def test_fit_with_correct_metric(self):
         metrics = [1, 2, 3]
         for metric in metrics:
-            FKNN(2, metric, 2).fit(Xtrain, Ytrain)
+            FKNN(2, metric, 2).fit(Xtrain, Ytrain_)
 
     def test_with_invalid_init_strat(self):
         strats = [4, [], 'bla', '', '   ', 'COMPLETE', 'Mean']
         for strat in strats:
             try:
-                FKNN(2, 2, 2).fit(Xtrain, Ytrain, init_strat=strat)
+                FKNN(2, 2, 2).fit(Xtrain, Ytrain_, init_strat=strat)
                 self.fail(f"Init memberships with unknown strat: {strat}")
             except ValueError:
                 pass
@@ -104,7 +120,7 @@ class TestsFit(unittest.TestCase):
     def test_with_valid_init_strat(self):
         strats = ['complete', 'means']
         for strat in strats:
-            FKNN(2, 2, 2).fit(Xtrain, Ytrain, init_strat=strat)
+            FKNN(2, 2, 2).fit(Xtrain, Ytrain_, init_strat=strat)
 
 
 def accuracy(reals, predictions):
