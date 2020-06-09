@@ -23,24 +23,20 @@ class FKNN:
         self._nclasses = 0
         self._memberships = []
 
-    def fit(self, X, Y):
+    def fit(self, X, Y, init_strat='complete'):
         """Organise the training data
 
         Args:
             X (ndarray): the feature vector
             Y (ndarray): the labels
+            init_strat (str): the membership initialisation strategy. Can be
+                one of [complete, means], defaults to complete
         """
         _check_properties(self)
         _check_train_data(X, Y, self.nneighbours)
         self._count_classes(Y)
-        self._build_membership_matrix(Y)
+        self._memberships = _membership_factory(init_strat, X, Y, self.p)
         self._tree = _organise_data(X, Y)
-
-    def _build_membership_matrix(self, Y):
-        self._nclasses = len(np.unique(Y))
-        self._memberships = np.zeros((self._nclasses, Y.size))
-        for i, y in enumerate(Y[:, 0].astype(np.int32)):
-            self._memberships[y, i] = 1
 
     def _count_classes(self, Y):
         self._nclasses = len(np.unique(Y))
@@ -114,14 +110,36 @@ def _check_all_labeled(X, Y):
         raise ValueError('different number of points and labels')
 
 
-def _labels(x):
-    if len(x.shape) == 1:
-        return int(x[-1])
-    return x[:, -1].astype(np.int32)
+def _membership_factory(strat, X, Y, p):
+    if strat == 'complete':
+        return _build_mdegs_complete(Y)
+    elif strat == 'means':
+        return _build_mdegs_kmeans(X, Y, p)
+    else:
+        raise ValueError(f"Invalid strategy {strat}: use '[complete, means]'")
 
 
-def _points(x):
-    if len(x.shape) == 1:
-        return x[:-1]
-    return x[:, :-1]
+def _build_mdegs_complete(Y):
+    nclasses = len(np.unique(Y))
+    memberships = np.zeros((nclasses, Y.size))
+    for j, y in enumerate(Y[:, 0].astype(np.int32)):
+        memberships[y, j] = 1
+    return memberships
+
+
+def _build_mdegs_kmeans(X, Y, p):
+    classes = np.unique(Y)
+
+    centres = []
+    for cls in classes:
+        idxs, __ = np.where(Y == cls)
+        centres.append(np.mean(X[idxs], axis=0))
+    centres = np.array(centres)
+
+    memberships = np.zeros((len(classes), Y.size))
+    for j, x in enumerate(X):
+        pdist = np.sum(np.abs(-centres + x) ** p, axis=1)
+        inv_dists = 1 / (pdist ** (1/p) + 1e-10)
+        memberships[:, j] = inv_dists / inv_dists.sum()
+    return memberships
 
