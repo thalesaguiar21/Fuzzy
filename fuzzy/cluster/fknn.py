@@ -64,7 +64,7 @@ class FKNN:
     def _predict_single(self, point):
         neighbours = self._find_neighbours(point)
         neigh_vecs, neigh_idx = neighbours[:, :-1], neighbours[:, -1]
-        sqr_dists = np.sum(np.abs((-neigh_vecs + point) ** self.p), axis=1)
+        sqr_dists = np.sum(np.abs(-neigh_vecs + point) ** self.p, axis=1)
         dists = sqr_dists ** (1/self.p)
         inv_dist = 1 / dists ** (self.p/(self.m-1))
         w_dists = self._memberships[:, neigh_idx.astype(np.int32)] @ inv_dist
@@ -90,8 +90,8 @@ def _organise_data(X, Y):
 
 
 def _check_properties(fknn):
-    if fknn.m < 2:
-        raise ValueError('distance weight \'m\' >= 2')
+    if fknn.m <= 1:
+        raise ValueError('distance weight \'m\' > 1')
     if fknn.p not in [1, 2, 3]:
         raise ValueError('distance metric must be in [1, 2, 3]')
     if fknn.nneighbours < 1:
