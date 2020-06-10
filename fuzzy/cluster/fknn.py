@@ -67,7 +67,7 @@ class FKNN:
         neigh_vecs, neigh_idx = neighbours[:, :-1], neighbours[:, -1]
         sqr_dists = np.sum(np.abs(-neigh_vecs + point) ** self.p, axis=1)
         dists = sqr_dists ** (1/self.p)
-        inv_dist = 1 / dists ** (self.p/(self.m-1))
+        inv_dist = 1 / dists ** (-self.p/(self.m-1))
         w_dists = self._memberships[:, neigh_idx.astype(np.int32)] @ inv_dist
         pred = w_dists / inv_dist.sum()
         return pred
