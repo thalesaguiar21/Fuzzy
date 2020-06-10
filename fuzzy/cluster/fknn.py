@@ -117,7 +117,7 @@ def _membership_factory(strat, X, Y, p, k):
     elif strat == 'means':
         return _build_mdegs_kmeans(X, Y, p)
     elif strat == 'knn':
-        return _build_mdegs_with_neighbours(X, Y, p, k)
+        return _build_mdegs_with_neighbours(X, Y, k, p)
     else:
         raise ValueError(f"Invalid strategy {strat}: use '[complete, means]'")
 
@@ -146,12 +146,12 @@ def _build_mdegs_kmeans(X, Y, p):
         memberships[:, j] = inv_dists / inv_dists.sum()
     return memberships
 
-def _build_mdegs_with_neighbours(X, Y, p, k):
+def _build_mdegs_with_neighbours(X, Y, k, p):
     tree = _organise_data(X, Y)
     classes = np.unique(Y)
     memberships = np.zeros((len(classes), Y.size))
     for j, x in enumerate(X):
-        neighbours = kdtree.find_neighbours(tree, x, p, k)
+        neighbours = kdtree.find_neighbours(tree, x, k, p)
         neigh_vec = neighbours[:, :-1]
         neigh_idx = neighbours[:, -1].astype(np.int32)
         for y in Y[neigh_idx]:
