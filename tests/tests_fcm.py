@@ -16,38 +16,49 @@ class TestsFCM(unittest.TestCase):
         self.mfcm = fcm.FCM(nclusters=3, fuzzyness=2)
         self.mfcm.fit(Xtrain, 0.2)
 
-    def setFCM(self, nclusters, m, tol):
+    def setFCM(self, nclusters, m, tol, metric):
         self.mfcm.nclusters = nclusters
         self.mfcm.m = m
         self.mfcm.tol = tol
+        self.p = metric
 
-    def set_fit_raising(self, nclusters, m, error):
-        self.setFCM(nclusters, m, 0.2)
+    def set_fit_raising(self, nclusters, m, error, metric):
+        self.setFCM(nclusters, m, 0.2, metric)
         self.assertRaises(error, self.mfcm.fit, Xtrain)
 
-    def set_fit_not_raising(self, nclusters, m):
-        self.setFCM(nclusters, m, 0.2)
+    def set_fit_not_raising(self, nclusters, m, metric):
+        self.setFCM(nclusters, m, 0.2, metric)
         self.assertNotRaise(self.mfcm.fit, Xtrain)
 
     def test_cluster_fuzzyness_out(self):
-        self.set_fit_raising(3, -2, ValueError)
-        self.set_fit_raising(3, -1, ValueError)
-        self.set_fit_raising(3, -0, ValueError)
-        self.set_fit_raising(3, -0.999, ValueError)
+        self.set_fit_raising(3, -2, ValueError, 2)
+        self.set_fit_raising(3, -1, ValueError, 2)
+        self.set_fit_raising(3, -0, ValueError, 2)
+        self.set_fit_raising(3, -0.999, ValueError, 2)
 
     def test_ncluster_out(self):
-        self.set_fit_raising(1, 2, ValueError)
-        self.set_fit_raising(0.1, 2, ValueError)
-        self.set_fit_raising(0, 2, ValueError)
+        self.set_fit_raising(1, 2, ValueError, 2)
+        self.set_fit_raising(0.1, 2, ValueError, 2)
+        self.set_fit_raising(0, 2, ValueError, 2)
 
     def test_fuzzyness_in(self):
-        self.set_fit_not_raising(3, 2)
-        self.set_fit_not_raising(3, 2.001)
-        self.set_fit_not_raising(3, 3)
+        self.set_fit_not_raising(3, 2, 1)
+        self.set_fit_not_raising(3, 2.001, 1)
+        self.set_fit_not_raising(3, 3, 1)
+        self.set_fit_not_raising(3, 2, 2)
+        self.set_fit_not_raising(3, 2.001, 2)
+        self.set_fit_not_raising(3, 3, 2)
+        self.set_fit_not_raising(3, 2, 3)
+        self.set_fit_not_raising(3, 2.001, 3)
+        self.set_fit_not_raising(3, 3, 3)
 
     def test_ncluster_in(self):
-        self.set_fit_not_raising(2, 2)
-        self.set_fit_not_raising(3, 2)
+        self.set_fit_not_raising(2, 2, 1)
+        self.set_fit_not_raising(3, 2, 1)
+        self.set_fit_not_raising(3, 2, 2)
+        self.set_fit_not_raising(3, 2, 2)
+        self.set_fit_not_raising(3, 2, 3)
+        self.set_fit_not_raising(3, 2, 3)
 
     def assertNotRaise(self, func, *args):
         try:
