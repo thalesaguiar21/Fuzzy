@@ -53,8 +53,8 @@ class FCM:
     def _make_dists(self, data):
         dists = np.zeros((data.shape[0], self.nclusters))
         for i in range(data.shape[0]):
-            for j in range(self.nclusters):
-                dists[i, j] = np.linalg.norm(data[i] - self.centroids[j])
+            sqr_dists = np.sum((-self.centroids + data[i]) ** 2, axis=1)
+            dists[i] = np.sqrt(sqr_dists)
         return dists
 
     def _make_memdegree(self, dists):
