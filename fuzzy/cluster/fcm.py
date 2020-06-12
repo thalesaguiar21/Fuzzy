@@ -14,7 +14,7 @@ class FCM:
         self.tol = tol
         self.max_iter = max_iter
 
-    def fit(self, X, Y):
+    def fit(self, X, Y=[]):
         _validate(self.nclusters, self.m)
         self._initialise_parts_centre_points(X)
         errors = np.inf

@@ -20,17 +20,18 @@ class TestsFCM(unittest.TestCase):
         self.mfcm.nclusters = 3
         self.mfcm.fuzzyness = 2
 
-    def setFCM(self, nclusters, m):
+    def setFCM(self, nclusters, m, tol):
         self.mfcm.nclusters = nclusters
         self.mfcm.m = m
+        self.mfcm.tol = tol
 
     def set_fit_raising(self, nclusters, m, error):
-        self.setFCM(nclusters, m)
-        self.assertRaises(error, self.mfcm.fit, Xtrain, 0.2)
+        self.setFCM(nclusters, m, 0.2)
+        self.assertRaises(error, self.mfcm.fit, Xtrain)
 
     def set_fit_not_raising(self, nclusters, m):
-        self.setFCM(nclusters, m)
-        self.assertNotRaise(self.mfcm.fit, Xtrain, 0.2)
+        self.setFCM(nclusters, m, 0.2)
+        self.assertNotRaise(self.mfcm.fit, Xtrain)
 
     def test_cluster_fuzzyness_out(self):
         self.set_fit_raising(3, -2, ValueError)
@@ -117,5 +118,4 @@ class TestsFCM(unittest.TestCase):
         accuracy = accuracy_score(preds, Ytrain)
         self.assertGreaterEqual(accuracy, 0.0)
         self.assertLess(accuracy, 1.0)
-
 
