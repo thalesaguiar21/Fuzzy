@@ -16,7 +16,7 @@ class FCM:
 
     def fit(self, X, Y=[]):
         _validate(self.nclusters, self.m)
-        self._initialise_parts_centre_points(X)
+        self._initialise_parts_centre_points(X, Y)
         errors = np.inf
         cur_iter = 1
         while not self.has_converged(errors, cur_iter):
@@ -27,12 +27,12 @@ class FCM:
             cur_iter += 1
         return self.partitions, self.centroids
 
-    def _initialise_parts_centre_points(self, data):
-        self.npoints = data.shape[0]
-        self.partitions = self._init_partitions()
-        self.centroids = np.zeros((self.nclusters, data.shape[1]))
+    def _initialise_parts_centre_points(self, X, Y):
+        self.npoints, dim = X.shape
+        self.partitions = self._init_partitions(Y)
+        self.centroids = np.zeros((self.nclusters, dim))
 
-    def _init_partitions(self):
+    def _init_partitions(self, Y):
         partitions = np.random.rand(self.npoints, self.nclusters)
         for i in range(self.npoints):
             partitions[i] = partitions[i] / partitions[i].sum()
@@ -54,8 +54,8 @@ class FCM:
     def _make_dists(self, data):
         dists = np.zeros((data.shape[0], self.nclusters))
         for i in range(data.shape[0]):
-            sqr_dists = np.sum((-self.centroids + data[i]) ** 2, axis=1)
-            dists[i] = np.sqrt(sqr_dists)
+            sqrsum = np.sum((data[i] - self.centroids) ** 2, axis=1)
+            dists[i] = np.sqrt(sqrsum)
         return dists
 
     def _make_memdegree(self, dists):
