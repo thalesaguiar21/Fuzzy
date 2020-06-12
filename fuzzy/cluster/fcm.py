@@ -85,6 +85,7 @@ class FCM:
         self.nclusters = params.get('nclusters', self.nclusters)
         self.m = params.get('fuzzyness', self.m)
         self.tol = params.get('tol', self.tol)
+        self.p = params.get('metric', self.p)
 
 
 def _validate(nclusters, fuzzyness):
