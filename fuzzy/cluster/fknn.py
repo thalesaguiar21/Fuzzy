@@ -65,9 +65,9 @@ class FKNN:
     def _predict_single(self, point):
         neighbours = self._find_neighbours(point)
         neigh_vecs, neigh_idx = neighbours[:, :-1], neighbours[:, -1]
-        sqr_dists = np.sum(np.abs(-neigh_vecs + point) ** self.p, axis=1)
+        sqr_dists = np.sum(np.abs(point - neigh_vecs) ** self.p, axis=1)
         dists = sqr_dists ** (1/self.p)
-        inv_dist = 1 / dists ** (self.p/(self.m-1))
+        inv_dist = 1 / dists ** (2/(self.m-1))
         w_dists = self._memberships[:, neigh_idx.astype(np.int32)] @ inv_dist
         pred = w_dists / inv_dist.sum()
         return pred
@@ -159,7 +159,4 @@ def _build_mdegs_with_neighbours(X, Y, k, p):
         memberships[:, j]  = (memberships[:, j] / k) * 0.49
         memberships[Y[j], j] += 0.51
     return memberships
-
-
-
 
