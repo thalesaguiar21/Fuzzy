@@ -1,11 +1,13 @@
 import numpy as np
+
 from ..lse import Matricial
 from ..pca import PCA
+from . import metrics
 
 
 class FCM:
 
-    def __init__(self, nclusters, fuzzyness, tol=1e-2, max_iter=200):
+    def __init__(self, nclusters, fuzzyness, tol=1e-2, max_iter=200, metric=2):
         self.partitions = []
         self.m = fuzzyness
         self.nclusters = nclusters
@@ -13,6 +15,7 @@ class FCM:
         self.centroids = []
         self.tol = tol
         self.max_iter = max_iter
+        self.p = metric
 
     def fit(self, X, Y=[]):
         _validate(self.nclusters, self.m)
@@ -54,8 +57,7 @@ class FCM:
     def _make_dists(self, data):
         dists = np.zeros((data.shape[0], self.nclusters))
         for i in range(data.shape[0]):
-            sqrsum = np.sum((data[i] - self.centroids) ** 2, axis=1)
-            dists[i] = np.sqrt(sqrsum)
+            dists[i] = metrics.minkowski(data[i], self.centroids, self.p)
         return dists
 
     def _make_memdegree(self, dists):

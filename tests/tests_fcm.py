@@ -16,10 +16,6 @@ class TestsFCM(unittest.TestCase):
         self.mfcm = fcm.FCM(nclusters=3, fuzzyness=2)
         self.mfcm.fit(Xtrain, 0.2)
 
-    def tearDown(self):
-        self.mfcm.nclusters = 3
-        self.mfcm.fuzzyness = 2
-
     def setFCM(self, nclusters, m, tol):
         self.mfcm.nclusters = nclusters
         self.mfcm.m = m
