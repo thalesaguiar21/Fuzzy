@@ -3,6 +3,7 @@ from collections import defaultdict
 import numpy as np
 
 from . import kdtree
+from . import metrics
 from ..logic import mfs
 
 
@@ -65,8 +66,7 @@ class FKNN:
     def _predict_single(self, point):
         neighbours = self._find_neighbours(point)
         neigh_vecs, neigh_idx = neighbours[:, :-1], neighbours[:, -1]
-        sqr_dists = np.sum(np.abs(point - neigh_vecs) ** self.p, axis=1)
-        dists = sqr_dists ** (1/self.p)
+        dists = metrics.minkowski(point, neigh_vecs, self.p)
         inv_dist = 1 / dists ** (2/(self.m-1))
         w_dists = self._memberships[:, neigh_idx.astype(np.int32)] @ inv_dist
         pred = w_dists / inv_dist.sum()
@@ -141,8 +141,8 @@ def _build_mdegs_kmeans(X, Y, p):
 
     memberships = np.zeros((len(classes), Y.size))
     for j, x in enumerate(X):
-        pdist = np.sum(np.abs(-centres + x) ** p, axis=1)
-        inv_dists = 1 / (pdist ** (1/p) + 1e-10)
+        dists = metrics.minkowski(x, centres, p)
+        inv_dists = 1 / (dists + 1e-10)
         memberships[:, j] = inv_dists / inv_dists.sum()
     return memberships
 
