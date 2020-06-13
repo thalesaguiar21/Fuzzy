@@ -126,3 +126,37 @@ class TestsFCM(unittest.TestCase):
         self.assertGreaterEqual(accuracy, 0.0)
         self.assertLess(accuracy, 1.0)
 
+
+class TestsSemiSupervisedFCM(unittest.TestCase):
+
+    def test_part_rowsum(self):
+        ss_fcm = fcm.SemiSupervisedFCM(3, 2)
+        parts, __ = ss_fcm.fit(Xtrain, Ytrain)
+        error = np.abs(np.sum(parts, axis=1) - 1)
+        self.assertTrue(np.all(error <= 1e-7))
+
+    def test_part_colsum(self):
+        ss_fcm = fcm.SemiSupervisedFCM(3, 2)
+        parts, __ = ss_fcm.fit(Xtrain, Ytrain)
+        lower_than_samples = np.sum(parts, axis=0) <= Xtrain.shape[0]
+        self.assertTrue(np.all(lower_than_samples))
+
+    def test_ncenters_equal_nclass(self):
+        ss_fcm = fcm.SemiSupervisedFCM(3, 2)
+        __, centres = ss_fcm.fit(Xtrain, Ytrain)
+        self.assertEqual(centres.shape[0], np.unique(Ytrain).size)
+
+    def test_predict_with_labels(self):
+        ss_fcm = fcm.SemiSupervisedFCM(3, 2)
+        ss_fcm.fit(Xtrain, Ytrain)
+        preds = ss_fcm.predict(Xtest)
+
+    def test_accuracy(self):
+        ss_fcm = fcm.SemiSupervisedFCM(3, 2)
+        ss_fcm.fit(Xtrain, Ytrain)
+        preds = ss_fcm.predict(Xtest)
+        accuracy = accuracy_score(preds, Ytest)
+        self.assertGreater(accuracy, 0.0)
+        self.assertLess(accuracy, 1.0)
+
+        

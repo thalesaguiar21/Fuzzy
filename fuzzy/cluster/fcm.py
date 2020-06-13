@@ -94,3 +94,37 @@ def _validate(nclusters, fuzzyness):
     if fuzzyness <= 1:
         raise ValueError('Cluster fuzzyness must be greater than 1!')
 
+
+class SemiSupervisedFCM(FCM):
+
+    def __init__(self, nclusters, fuzzyness, tol=1e-2, max_iter=200, metric=2):
+        super().__init__(nclusters, fuzzyness, tol, max_iter, metric)
+        self._labels = []
+
+    def fit(self, X, Y):
+        self._labels = np.unique(Y.astype(np.int32))
+        self.nclusters = self._labels.size
+        super().fit(X, Y)
+        self._label_clusters(Y)
+        return self.partitions, self.centroids
+
+    def _init_partitions(self, Y):
+        Y_ = Y.reshape(-1).astype(np.int32)
+        partitions = np.zeros((self.npoints, self._labels.size))
+        for i, y in enumerate(Y_):
+            partitions[i, y] = 1
+        return partitions
+
+    def _label_clusters(self, Y):
+        Y_ = Y.reshape(-1).astype(np.int32)
+        counts = {c: [0] * self._labels.size for c in range(self.nclusters)}
+        best_fits = np.argmax(self.partitions, axis=1)
+        for i, y in enumerate(Y_):
+            counts[best_fits[i]][y] += 1
+        self._clust_labels = np.argmax(list(counts.values()), axis=1)
+
+    def predict(self, data):
+        clusters = super().predict(data)
+        return self._clust_labels[clusters]
+
+
